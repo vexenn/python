@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VetMed SafeCalc Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+    --primary:#2c7a7b;
+    --bg:#f7fafc;
+    --card:#ffffff;
+    --warn:#c05621;
+    --err:#e53e3e;
+}
+body{
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg);
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+h1,h2{color:var(--primary)}
+.tabs{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:20px;
+}
+.tab-btn{
+    padding:10px 16px;
+    border:none;
+    border-radius:6px;
+    font-weight:600;
+    background:#e2e8f0;
+    cursor:pointer;
+}
+.tab-btn.active{
+    background:var(--primary);
+    color:white;
+}
+.calc-section{
+    display:none;
+    background:var(--card);
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 4px 6px rgba(0,0,0,.05);
+    margin-bottom:20px;
+}
+.calc-section.active{display:block}
+.grid-3{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+}
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+.input-group{margin-bottom:12px}
+label{
+    display:block;
+    font-weight:600;
+    font-size:.9em;
+    margin-bottom:4px;
+}
+input,select,button{
+    width:100%;
+    padding:10px;
+    border-radius:4px;
+    border:1px solid #cbd5e0;
+}
+button{
+    background:var(--primary);
+    color:white;
+    border:none;
+    font-weight:600;
+    cursor:pointer;
+}
+button:hover{opacity:.9}
+.result-box{
+    background:#e6fffa;
+    border-left:5px solid var(--primary);
+    padding:10px;
+    margin-top:10px;
+}
+.warning{
+    background:#fffaf0;
+    border-left:5px solid var(--warn);
+    padding:10px;
+    margin-top:8px;
+}
+@media print{
+    .tabs,button{display:none}
+    body{background:white}
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐾 VetMed SafeCalc Pro</h1>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="showTab('patient')">Patient Info</button>
+    <button class="tab-btn" onclick="showTab('dosage')">Dosage</button>
+    <button class="tab-btn" onclick="showTab('dilution')">Dilution</button>
+    <button class="tab-btn" onclick="showTab('fluids')">Fluids / CRI</button>
+    <button class="tab-btn" onclick="showTab('rer')">RER & BSA</button>
+</div>
+
+<!-- ================= PATIENT ================= -->
+<div id="patient" class="calc-section active">
+<h2>Patient Information</h2>
+
+<div class="input-group">
+<label>Pet Name</label>
+<input id="p_name">
+</div>
+
+<div class="grid-3">
+<div>
+<label>Species</label>
+<select id="p_species">
+<option value="dog">Dog</option>
+<option value="cat">Cat</option>
+</select>
+</div>
+<div>
+<label>Weight</label>
+<input id="p_weight" type="number" step="0.01">
+</div>
+<div>
+<label>Unit</label>
+<select id="p_unit">
+<option value="kg">kg</option>
+<option value="lb">lb</option>
+</select>
+</div>
+</div>
+
+<div class="grid-2">
+<div>
+<label>Owner Name</label>
+<input id="o_name">
+</div>
+<div>
+<label>Owner Phone</label>
+<input id="o_phone">
+</div>
+</div>
+
+<div class="input-group">
+<label>Owner Email</label>
+<input id="o_email">
+</div>
+
+<button onclick="savePatient()">Save Patient</button>
+<select id="patient_list" onchange="loadPatient()"></select>
+<div id="patient_status" class="result-box"></div>
+</div>
+
+<!-- ================= DOSAGE ================= -->
+<div id="dosage" class="calc-section">
+<h2>Medication Dosage</h2>
+
+<div class="grid-2">
+<div>
+<label>Dose</label>
+<input id="dose_rate" type="number" step="0.0001">
+</div>
+<div>
+<label>Units</label>
+<select id="dose_units">
+<option value="mg/kg">mg/kg</option>
+<option value="mcg/kg">mcg/kg</option>
+<option value="ng/kg">ng/kg</option>
+<option value="mg/lb">mg/lb</option>
+<option value="mcg/lb">mcg/lb</option>
+<option value="ng/lb">ng/lb</option>
+</select>
+</div>
+</div>
+
+<div class="input-group">
+<label>Concentration (mg/mL)</label>
+<input id="dose_conc" type="number" step="0.0001">
+</div>
+
+<button onclick="calcDose()">Calculate</button>
+<div id="dose_result" class="result-box"></div>
+<div id="dose_warn" class="warning"></div>
+</div>
+
+<!-- ================= DILUTION ================= -->
+<div id="dilution" class="calc-section">
+<h2>Dilution (Auto Micro-Volume)</h2>
+
+<div class="grid-2">
+<input id="c1" placeholder="Stock mg/mL">
+<input id="v1" placeholder="Stock mL">
+<input id="c2" placeholder="Target mg/mL">
+<input id="v2" placeholder="Final mL">
+</div>
+
+<button onclick="calcDilution()">Calculate</button>
+<div id="dilution_result" class="result-box"></div>
+</div>
+
+<!-- ================= FLUIDS ================= -->
+<div id="fluids" class="calc-section">
+<h2>Fluids / CRI</h2>
+
+<div class="grid-2">
+<div>
+<label>Dose (mcg or ng/kg/min)</label>
+<input id="cri_dose" type="number" step="0.0001">
+</div>
+<div>
+<label>Drug Concentration (mg/mL)</label>
+<input id="cri_conc" type="number" step="0.0001">
+</div>
+</div>
+
+<button onclick="calcCRI()">Calculate CRI</button>
+<div id="cri_result" class="result-box"></div>
+</div>
+
+<!-- ================= RER ================= -->
+<div id="rer" class="calc-section">
+<h2>RER & BSA</h2>
+<button onclick="calcRER()">Calculate</button>
+<div id="rer_result" class="result-box"></div>
+<button onclick="window.print()">Print Anesthesia Sheet</button>
+</div>
+
+<script>
+const MASS={ng:0.000001,mcg:0.001,mg:1}
+const WT={kg:1,lb:0.453592}
+const uuid=()=>crypto.randomUUID()
+
+function showTab(id){
+    document.querySelectorAll('.calc-section').forEach(s=>s.classList.remove('active'))
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+    document.getElementById(id).classList.add('active')
+    event.target.classList.add('active')
+}
+
+function savePatient(){
+    const p={
+        id:uuid(),
+        name:p_name.value.trim(),
+        species:p_species.value,
+        weight:+p_weight.value,
+        unit:p_unit.value,
+        owner:{name:o_name.value,phone:o_phone.value,email:o_email.value}
+    }
+    if(!p.name||!p.weight)return
+    const db=JSON.parse(localStorage.getItem("patients"))||[]
+    db.push(p)
+    localStorage.setItem("patients",JSON.stringify(db))
+    patient_status.innerHTML="Patient saved."
+    loadList()
+}
+
+function loadList(){
+    patient_list.innerHTML="<option>Select patient</option>"
+    const db=JSON.parse(localStorage.getItem("patients"))||[]
+    db.forEach(p=>{
+        const o=document.createElement("option")
+        o.value=p.id
+        o.textContent=`${p.name} (${p.species})`
+        patient_list.appendChild(o)
+    })
+}
+function loadPatient(){
+    const db=JSON.parse(localStorage.getItem("patients"))||[]
+    const p=db.find(x=>x.id===patient_list.value)
+    if(!p)return
+    p_name.value=p.name
+    p_species.value=p.species
+    p_weight.value=p.weight
+    p_unit.value=p.unit
+    o_name.value=p.owner.name
+    o_phone.value=p.owner.phone
+    o_email.value=p.owner.email
+}
+
+function calcDose(){
+    const wkg=p_weight.value*WT[p_unit.value]
+    const [m,u]=dose_units.value.split("/")
+    const mgkg=dose_rate.value*MASS[m]
+    const total=mgkg*wkg
+    const ml=total/dose_conc.value
+    dose_result.innerHTML=`Dose: ${total.toFixed(6)} mg<br>Volume: ${ml.toFixed(4)} mL`
+    dose_warn.innerHTML=ml<0.05?"⚠️ Micro-volume: dilution recommended":""
+}
+
+function calcDilution(){
+    if(!v2.value && c1.value && v1.value && c2.value)
+        dilution_result.innerHTML=`Final Volume: ${(c1.value*v1.value/c2.value).toFixed(2)} mL`
+    if(!v1.value && c1.value && c2.value && v2.value)
+        dilution_result.innerHTML=`Use ${(c2.value*v2.value/c1.value).toFixed(3)} mL stock`
+}
+
+function calcCRI(){
+    const wkg=p_weight.value*WT[p_unit.value]
+    let mgkg=(cri_dose.value<1)
+        ? (cri_dose.value*60/1e6)
+        : (cri_dose.value*60/1000)
+    const mlhr=(mgkg*wkg)/cri_conc.value
+    cri_result.innerHTML=`CRI Rate: ${mlhr.toFixed(3)} mL/hr`
+}
+
+function calcRER(){
+    const w=p_weight.value*WT[p_unit.value]
+    const rer=70*Math.pow(w,.75)
+    rer_result.innerHTML=`RER: ${rer.toFixed(0)} kcal/day`
+}
+
+loadList()
+</script>
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VetMed Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{--primary:#2c7a7b;--secondary:#e6fffa;--warning:#c05621;--error:#e53e3e;--text:#2d3748;--accent:#38b2ac;--bg-gradient:linear-gradient(135deg, #667eea 0%, #764ba2 100%);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f7fafc;color:var(--text);overflow-x:hidden;}
+#welcome-screen{position:fixed;top:0;left:0;width:100%;height:100vh;background:var(--bg-gradient);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:opacity 0.6s ease, transform 0.6s ease;}
+#welcome-screen.hidden{opacity:0;transform:scale(1.1);pointer-events:none;}
+.welcome-content{text-align:center;color:white;animation:fadeInUp 0.8s ease;}
+.paw-print{font-size:120px;animation:pulse 2s infinite;}
+.welcome-content h1{font-size:2.5em;margin:20px 0;color:white;}
+.welcome-content input{padding:15px 25px;font-size:1.1em;border:none;border-radius:50px;width:300px;max-width:90%;margin:20px 0;text-align:center;}
+.welcome-content button{padding:15px 40px;font-size:1.1em;background:white;color:var(--primary);border:none;border-radius:50px;cursor:pointer;font-weight:600;transition:transform 0.3s ease;}
+.welcome-content button:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,0.2);}
+#main-app{display:none;opacity:0;transition:opacity 0.6s ease;}
+#main-app.visible{display:block;opacity:1;}
+.app-header{background:var(--bg-gradient);color:white;padding:20px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
+.app-header h1{font-size:1.8em;color:white;}
+.user-greeting{font-size:0.9em;opacity:0.9;margin-top:5px;}
+.menu-toggle{position:absolute;left:20px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.2);border:none;color:white;font-size:1.5em;padding:10px 15px;border-radius:8px;cursor:pointer;}
+.sidebar{position:fixed;left:-300px;top:0;width:280px;height:100vh;background:white;box-shadow:4px 0 15px rgba(0,0,0,0.1);transition:left 0.4s ease;z-index:1000;overflow-y:auto;}
+.sidebar.open{left:0;}
+.sidebar-header{background:var(--primary);color:white;padding:20px;font-size:1.3em;font-weight:600;}
+.nav-item{padding:15px 20px;border-bottom:1px solid #e2e8f0;cursor:pointer;transition:background 0.3s ease,padding-left 0.3s ease;}
+.nav-item:hover{background:var(--secondary);padding-left:30px;}
+.nav-item.active{background:var(--secondary);border-left:4px solid var(--primary);font-weight:600;}
+.dropdown-btn{width:100%;text-align:left;background:none;border:none;padding:15px 20px;cursor:pointer;font-size:1em;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;font-family:inherit;}
+.dropdown-content{display:none;background:#f7fafc;}
+.dropdown-content.show{display:block;}
+.dropdown-content .nav-item{font-size:0.9em;padding:12px 20px 12px 40px;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100vh;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:999;}
+.overlay.show{opacity:1;pointer-events:all;}
+.content-wrapper{max-width:1200px;margin:0 auto;padding:20px;min-height:calc(100vh - 100px);}
+.content-section{display:none;animation:fadeIn 0.5s ease;}
+.content-section.active{display:block;}
+.calc-card{background:white;padding:30px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,0.05);margin-bottom:20px;}
+h2{color:var(--primary);margin-bottom:20px;font-size:1.8em;}
+h3{color:var(--primary);margin-bottom:15px;font-size:1.3em;}
+h4{color:var(--accent);margin:15px 0 10px 0;font-size:1.05em;}
+.input-group{margin-bottom:20px;}
+label{font-weight:600;font-size:0.95em;display:block;margin-bottom:8px;color:var(--text);}
+input,select{width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;font-size:1em;font-family:inherit;}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(44, 122, 123, 0.1);}
+button.calculate{width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:1.1em;font-weight:600;cursor:pointer;}
+button.calculate:hover{background:var(--accent);}
+.result-box{display:none;margin-top:20px;padding:20px;background:var(--secondary);border-left:5px solid var(--primary);border-radius:8px;}
+.warning-box{display:none;margin-top:15px;padding:15px;background:#fffaf0;border-left:5px solid var(--warning);color:var(--warning);border-radius:8px;}
+.alert-box{display:none;margin-top:15px;padding:15px;background:#fff5f5;border-left:5px solid var(--error);color:var(--error);border-radius:8px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.home-background{background:linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);min-height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:15px;padding:40px;text-align:center;}
+.home-paw{font-size:150px;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+@media (max-width: 768px){.grid-2{grid-template-columns:1fr;}.sidebar{width:100%;left:-100%;}}
+@media print{.sidebar,.menu-toggle,.app-header,.calculate{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="welcome-screen">
+<div class="welcome-content">
+<div class="paw-print">🐾</div>
+<h1>Welcome to VetMed Pro</h1>
+<input type="text" id="userName" placeholder="Enter your name">
+<button onclick="enterApp()">Enter App</button>
+</div>
+</div>
+
+<div id="main-app">
+<div class="app-header">
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<h1>🐾 VetMed Pro</h1>
+<div class="user-greeting" id="greeting"></div>
+</div>
+
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header">Navigation</div>
+<div class="nav-item active" onclick="showSection('home')">🏠 Home</div>
+<div class="nav-item" onclick="showSection('dosage')">💊 Medication Dosage</div>
+<div class="nav-item" onclick="showSection('dilution')">💧 Dilution Calculator</div>
+<div class="nav-item" onclick="showSection('cri')">🌊 CRI Calculator</div>
+<div class="nav-item" onclick="showSection('metabolic')">⚡ RER & BSA</div>
+<div class="nav-item" onclick="showSection('print')">🖨️ Anesthesia Sheet</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="content-wrapper">
+
+<div id="home" class="content-section active">
+<div class="home-background">
+<div class="home-paw">🐾</div>
+<h2>Welcome to VetMed Pro</h2>
+<p>Your comprehensive veterinary medical calculator and reference tool</p>
+</div>
+</div>
+
+<div id="dosage" class="content-section">
+<div class="calc-card">
+<h2>💊 Medication Dosage Calculator</h2>
+
+<div class="grid-2">
+    <div class="input-group">
+        <label>Species</label>
+        <select id="species">
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>Weight</label>
+        <input type="number" id="weight" step="0.01">
+    </div>
+</div>
+
+<div class="input-group">
+    <label>Weight Unit</label>
+    <select id="weight_unit">
+        <option value="kg">kg</option>
+        <option value="lb">lb</option>
+    </select>
+</div>
+
+<div class="input-group">
+    <label>Drug</label>
+    <select id="drug" onchange="applyDrug()">
+        <option value="">— select —</option>
+        <option value="fentanyl">Fentanyl</option>
+        <option value="dexmed">Dexmedetomidine</option>
+        <option value="hydromorphone">Hydromorphone</option>
+    </select>
+</div>
+
+<div class="grid-2">
+    <div class="input-group">
+        <label>Dose Rate</label>
+        <input type="number" id="dose_rate" step="0.000001">
+    </div>
+    <div class="input-group">
+        <label>Dose Units</label>
+        <select id="dose_units">
+            <option value="mcg/kg">mcg/kg</option>
+            <option value="ng/kg">ng/kg</option>
+            <option value="mg/kg">mg/kg</option>
+            <option value="mcg/lb">mcg/lb</option>
+            <option value="ng/lb">ng/lb</option>
+            <option value="mg/lb">mg/lb</option>
+        </select>
+    </div>
+</div>
+
+<div class="input-group">
+    <label>Concentration (mg/mL)</label>
+    <input type="number" id="conc" step="0.0001">
+</div>
+
+<button class="calculate" onclick="calcDose()">Calculate</button>
+
+<div id="dose_result" class="result-box"></div>
+<div id="dose_warn" class="warning-box"></div>
+<div id="dilution_auto" class="alert-box"></div>
+</div>
+</div>
+
+<div id="dilution" class="content-section">
+<div class="calc-card">
+<h2>💧 Dilution Calculator (C1V1 = C2V2)</h2>
+<p>Leave exactly one field blank to solve for it.</p>
+<div class="grid-2">
+<div class="input-group"><label>C1 (Initial Concentration)</label><input type="number" id="dil_c1" step="0.0001"></div>
+<div class="input-group"><label>V1 (Initial Volume mL)</label><input type="number" id="dil_v1" step="0.01"></div>
+<div class="input-group"><label>C2 (Final Concentration)</label><input type="number" id="dil_c2" step="0.0001"></div>
+<div class="input-group"><label>V2 (Final Volume mL)</label><input type="number" id="dil_v2" step="0.01"></div>
+</div>
+<button class="calculate" onclick="calcDilution()">Calculate</button>
+<div id="dil_result" class="result-box"></div>
+</div>
+</div>
+
+<div id="cri" class="content-section">
+<div class="calc-card">
+<h2>🌊 CRI Calculator</h2>
+<div class="grid-2">
+<div class="input-group"><label>Weight (kg)</label><input type="number" id="cri_weight" step="0.01"></div>
+<div class="input-group"><label>Dose (mcg/kg/min)</label><input type="number" id="cri_dose" step="0.001"></div>
+</div>
+<div class="input-group"><label>Drug Concentration (mg/mL)</label><input type="number" id="cri_conc" step="0.0001"></div>
+<button class="calculate" onclick="calcCRI()">Calculate CRI</button>
+<div id="cri_result" class="result-box"></div>
+</div>
+</div>
+
+<div id="metabolic" class="content-section">
+<div class="calc-card">
+<h2>⚡ RER & BSA Calculator</h2>
+<div class="grid-2">
+<div class="input-group"><label>Weight (kg)</label><input type="number" id="meta_weight" step="0.01"></div>
+<div class="input-group"><label>Species</label><select id="meta_species"><option value="dog">Dog</option><option value="cat">Cat</option></select></div>
+</div>
+<button class="calculate" onclick="calcMetabolic()">Calculate</button>
+<div id="meta_result" class="result-box"></div>
+</div>
+</div>
+
+<div id="print" class="content-section">
+<div class="calc-card">
+<h2>🖨️ Printable Anesthesia Sheet</h2>
+
+<div class="result-box" style="display:block;">
+    <h3 style="text-align:center;margin-bottom:20px;">ANESTHESIA REFERENCE SHEET</h3>
+    
+    <div style="background:#f7fafc;padding:15px;border-radius:8px;margin-bottom:15px;">
+        <strong>Species:</strong> <span id="p_species">—</span>
+
+        <strong>Weight:</strong> <span id="p_weight">—</span>
+
+        <strong>Drug:</strong> <span id="p_drug">—</span>
+
+        <strong>Dose:</strong> <span id="p_dose">—</span>
+
+        <strong>Volume:</strong> <span id="p_volume">—</span>
+    </div>
+
+    <div style="background:#fffaf0;padding:12px;border-left:5px solid var(--warning);border-radius:8px;">
+        <strong>⚠️ Important:</strong> Double-check all calculations independently. This sheet auto-populates from the Dosage Calculator.
+    </div>
+</div>
+
+<button class="calculate" onclick="window.print()">🖨️ Print Sheet</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ---------- CONSTANTS ---------- */
+const MASS = {ng: 1e-6, mcg: 1e-3, mg: 1};
+const WT = {kg: 1, lb: 0.453592};
+
+const PRESETS = {
+    fentanyl: {units: "mcg/kg", conc: 0.05},
+    dexmed: {units: "mcg/kg", conc: 0.5},
+    hydromorphone: {units: "mg/kg", conc: 2}
+};
+
+const LIMITS = {
+    fentanyl: {dog: 10, cat: 5},
+    dexmed: {dog: 20, cat: 10},
+    hydromorphone: {dog: 0.2, cat: 0.1}
+};
+
+/* ---------- APP FUNCTIONS ---------- */
+function enterApp() {
+    const name = document.getElementById('userName').value || 'Vet Tech';
+    document.getElementById('greeting').textContent = `Welcome, ${name}!`;
+    document.getElementById('welcome-screen').classList.add('hidden');
+    setTimeout(() => {
+        document.getElementById('main-app').classList.add('visible');
+    }, 600);
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+}
+
+function toggleDropdown(id) {
+    document.getElementById(id).classList.toggle('show');
+}
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event.target.classList.add('active');
+    toggleSidebar();
+}
+
+/* ---------- DOSAGE CALCULATOR ---------- */
+function applyDrug() {
+    const drugVal = document.getElementById('drug').value;
+    if (PRESETS[drugVal]) {
+        document.getElementById('dose_units').value = PRESETS[drugVal].units;
+        document.getElementById('conc').value = PRESETS[drugVal].conc;
+    }
+}
+
+function calcDose() {
+    const sp = document.getElementById('species').value;
+    const w = parseFloat(document.getElementById('weight').value) * WT[document.getElementById('weight_unit').value];
+    const rate = parseFloat(document.getElementById('dose_rate').value);
+    const doseUnits = document.getElementById('dose_units').value;
+    const [mu] = doseUnits.split('/');
+    const c = parseFloat(document.getElementById('conc').value);
+    const drugVal = document.getElementById('drug').value;
+
+    const res = document.getElementById('dose_result');
+    const warn = document.getElementById('dose_warn');
+    const auto = document.getElementById('dilution_auto');
+    
+    warn.style.display = 'none';
+    auto.style.display = 'none';
+
+    if (!w || !rate || !c) {
+        res.style.display = 'block';
+        res.innerHTML = "⚠️ Please fill all fields.";
+        return;
+    }
+
+    const totalMg = w * rate * MASS[mu];
+    const vol = totalMg / c;
+
+    res.style.display = 'block';
+    res.innerHTML = `
+        <strong>Total Drug:</strong> ${totalMg.toFixed(6)} mg
+
+        <strong>Volume to Administer:</strong> <strong>${vol.toFixed(4)} mL</strong>
+
+        <strong>Patient Weight:</strong> ${w.toFixed(2)} kg
+
+        <strong>Dose:</strong> ${rate} ${doseUnits}
+    `;
+
+    if (LIMITS[drugVal] && rate > LIMITS[drugVal][sp]) {
+        warn.style.display = 'block';
+        warn.innerHTML = "⚠️ Warning: Dose exceeds typical species upper bound. Verify order.";
+    }
+
+    if (vol < 0.05) {
+        const target = 0.1;
+        auto.style.display = 'block';
+        auto.innerHTML = `
+            ⚠️ <strong>Micro-volume detected (${vol.toFixed(4)} mL)</strong>
+
+            Consider dilution to ${target} mL total volume.
+
+            New concentration would be: ${(totalMg / target).toFixed(4)} mg/mL
+        `;
+    }
+
+    // Populate print sheet
+    document.getElementById('p_species').textContent = sp.charAt(0).toUpperCase() + sp.slice(1);
+    document.getElementById('p_weight').textContent = document.getElementById('weight').value + " " + document.getElementById('weight_unit').value;
+    document.getElementById('p_drug').textContent = drugVal || "—";
+    document.getElementById('p_dose').textContent = rate + " " + doseUnits;
+    document.getElementById('p_volume').textContent = vol.toFixed(4) + " mL";
+}
+
+/* ---------- DILUTION CALCULATOR ---------- */
+function calcDilution() {
+    const c1 = parseFloat(document.getElementById('dil_c1').value);
+    const v1 = parseFloat(document.getElementById('dil_v1').value);
+    const c2 = parseFloat(document.getElementById('dil_c2').value);
+    const v2 = parseFloat(document.getElementById('dil_v2').value);
+    
+    let result = '';
+    const blanks = [isNaN(c1), isNaN(v1), isNaN(c2), isNaN(v2)].filter(b => b).length;
+    
+    if (blanks !== 1) {
+        result = '⚠️ Please leave exactly ONE field blank!';
+    } else if (isNaN(c1)) {
+        result = `C1 = ${(c2 * v2 / v1).toFixed(4)}`;
+    } else if (isNaN(v1)) {
+        result = `V1 = ${(c2 * v2 / c1).toFixed(2)} mL`;
+    } else if (isNaN(c2)) {
+        result = `C2 = ${(c1 * v1 / v2).toFixed(4)}`;
+    } else if (isNaN(v2)) {
+        result = `V2 = ${(c1 * v1 / c2).toFixed(2)} mL`;
+    }
+    
+    const box = document.getElementById('dil_result');
+    box.innerHTML = `<strong>Result:</strong> ${result}`;
+    box.style.display = 'block';
+}
+
+/* ---------- CRI CALCULATOR ---------- */
+function calcCRI() {
+    const weight = parseFloat(document.getElementById('cri_weight').value);
+    const dose = parseFloat(document.getElementById('cri_dose').value);
+    const conc = parseFloat(document.getElementById('cri_conc').value);
+    
+    if (isNaN(weight) || isNaN(dose) || isNaN(conc)) {
+        alert('Please fill all fields');
+        return;
+    }
+    
+    const rate = (weight * dose * 60) / (conc * 1000);
+    
+    const box = document.getElementById('cri_result');
+    box.innerHTML = `
+        <strong>CRI Rate:</strong> ${rate.toFixed(3)} mL/hr<br>
+        <strong>Patient Weight:</strong> ${weight} kg<br>
+        <strong>Dose:</strong> ${dose} mcg/kg/min<br>
+        <strong>Concentration:</strong> ${conc} mg/mL
+    `;
+    box.style.display = 'block';
+}
+
+/* ---------- METABOLIC CALCULATOR ---------- */
+function calcMetabolic() {
+    const weight = parseFloat(document.getElementById('meta_weight').value);
+    const species = document.getElementById('meta_species').value;
+    
+    if (isNaN(weight)) {
+        alert('Please enter weight');
+        return;
+    }
+    
+    const rer = 70 * Math.pow(weight, 0.75);
+    const maintenance = rer * 1.2;
+    const k = species === 'dog' ? 10.1 : 10;
+    const bsa = (k * Math.pow(weight * 1000, 2/3)) / 10000;
+    
+    const box = document.getElementById('meta_result');
+    box.innerHTML = `
+        <strong>RER (Resting Energy Requirement):</strong> ${rer.toFixed(0)} kcal/day<br>
+        <strong>Maintenance (1.2× RER):</strong> ${maintenance.toFixed(0)} kcal/day<br>
+        <strong>BSA (Body Surface Area):</strong> ${bsa.toFixed(3)} m²<br>
+        <strong>Species:</strong> ${species.charAt(0).toUpperCase() + species.slice(1)}<br>
+        <strong>Weight:</strong> ${weight} kg
+    `;
+    box.style.display = 'block';
+}
+
+/* ---------- EVENT LISTENERS ---------- */
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('userName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enterApp();
+    });
+});
+</script>
+</body>
+</html>
