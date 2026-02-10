@@ -1,0 +1,194 @@
+import webbrowser
+import os
+import json
+
+# Quiz Data: 50 Questions based on the A&P Study Guide
+quiz_data = [
+    # --- DIGESTION & GENERAL (1-20) ---
+    {"question": "Animals have digestive systems based primarily on which of the following?", "options": ["Body weight and height", "Teeth and diet", "Atmospheric pressure", "Brain size"], "answer": "Teeth and diet"},
+    {"question": "Which of these is a monogastric herbivore?", "options": ["Cow", "Goat", "Horse", "Sheep"], "answer": "Horse"},
+    {"question": "What happens to the digestive system's position relative to the respiratory system at the pharynx?", "options": ["It moves from dorsal to ventral", "It moves from ventral to dorsal", "It stays lateral", "It disappears"], "answer": "It moves from ventral to dorsal"},
+    {"question": "The pyloric sphincter serves as the opening to which structure?", "options": ["Esophagus", "Jejunum", "Duodenum", "Cecum"], "answer": "Duodenum"},
+    {"question": "Which of the following is NOT an accessory gland of the GI tract?", "options": ["Liver", "Pancreas", "Gall Bladder", "Spleen"], "answer": "Spleen"},
+    {"question": "Which salivary gland is listed among the four main glands in the study guide?", "options": ["Adrenal", "Zygomatic", "Pituitary", "Thyroid"], "answer": "Zygomatic"},
+    {"question": "Jaundice (icterus) typically indicates issues with which organ?", "options": ["Heart", "Lungs", "Liver", "Kidneys"], "answer": "Liver"},
+    {"question": "What is the clinical appearance of an animal with jaundice?", "options": ["Blue skin", "Yellow skin", "Red rashes", "Loss of hair"], "answer": "Yellow skin"},
+    {"question": "What is the primary muscle issue in Megaesophagus?", "options": ["Muscles are too small", "Muscles are abnormally enlarged", "Muscles are missing", "Muscles are turning into bone"], "answer": "Muscles are abnormally enlarged"},
+    {"question": "How long should a pet with Megaesophagus stay upright after eating?", "options": ["5 minutes", "10 minutes", "30 minutes", "2 hours"], "answer": "30 minutes"},
+    {"question": "The omentum connects the stomach to which part of the body?", "options": ["The spine", "The abdominal walls", "The diaphragm", "The lungs"], "answer": "The abdominal walls"},
+    {"question": "Which structure provides routes for blood vessels and nerves to travel through the digestive system?", "options": ["Omentum", "Mesentery", "Esophagus", "Pylorus"], "answer": "Mesentery"},
+    {"question": "In the fundus, which cells produce hydrochloric acid (HCl)?", "options": ["Chief cells", "Parietal cells", "Endocrine cells", "Mucous neck cells"], "answer": "Parietal cells"},
+    {"question": "What is the function of 'Chief cells' in the fundus?", "options": ["Secrete mucus", "Produce HCl", "Secrete pepsinogen", "Produce gastrin"], "answer": "Secrete pepsinogen"},
+    {"question": "Where is chyme produced?", "options": ["Mouth", "Esophagus", "Stomach", "Large Intestine"], "answer": "Stomach"},
+    {"question": "Why does chyme move slowly into the duodenum?", "options": ["To prevent choking", "To allow for maximum nutrient absorption", "Because it is too heavy", "To cool down"], "answer": "To allow for maximum nutrient absorption"},
+    {"question": "What is the primary role of mucus in the stomach?", "options": ["To change the color of food", "To protect against pathogens, toxins, and acid", "To speed up movement", "To dehydrate the food"], "answer": "To protect against pathogens, toxins, and acid"},
+    {"question": "Which hormone produced in the fundus stimulates HCl production?", "options": ["Insulin", "Gastrin", "Estrogen", "Thyroxine"], "answer": "Gastrin"},
+    {"question": "What is the main function of the large intestine?", "options": ["Protein breakdown with acid", "Absorption of water and ions", "Storage of bile", "Mechanical grinding of food"], "answer": "Absorption of water and ions"},
+    {"question": "Which of the following is a sign of GDV (Gastric Dilatation-Volvulus)?", "options": ["Increased appetite", "Deep sleep", "Retching with nothing produced", "Excessive purring"], "answer": "Retching with nothing produced"},
+
+    # --- COWS & RUMINANTS (21-30) ---
+    {"question": "What does the reticulum look like internally?", "options": ["Smooth like glass", "Folded like a fan", "Like a honeycomb", "Like sandpaper"], "answer": "Like a honeycomb"},
+    {"question": "Which structure in the cow has folds of mucosa with papillae?", "options": ["Rumen", "Reticulum", "Omasum", "Abomasum"], "answer": "Omasum"},
+    {"question": "Hardware disease occurs when a metallic object perforates the wall of the:", "options": ["Rumen", "Reticulum", "Omasum", "Esophagus"], "answer": "Reticulum"},
+    {"question": "When a cow eructates, what two main gases are released?", "options": ["Oxygen and Nitrogen", "CO2 and Methane", "Helium and Argon", "CO2 and Oxygen"], "answer": "CO2 and Methane"},
+    {"question": "Where are Volatile Fatty Acids (VFAs) produced in the cow?", "options": ["Omasum via filtration", "Rumen via fermentation", "Abomasum via acid", "Reticulum via grinding"], "answer": "Rumen via fermentation"},
+    {"question": "What is the function of the esophageal groove in young ruminants?", "options": ["To store extra water", "To allow milk to bypass the reticulorumen", "To grind up grass", "To produce saliva"], "answer": "To allow milk to bypass the reticulorumen"},
+    {"question": "What causes bloat in a cow?", "options": ["Lack of water", "Accumulation of gases in the reticulorumen", "Eating too fast", "Exercise after eating"], "answer": "Accumulation of gases in the reticulorumen"},
+    {"question": "Which of these is a ruminant?", "options": ["Horse", "Rabbit", "Goat", "Pig"], "answer": "Goat"},
+    {"question": "Pepsinogen is the precursor to which active enzyme?", "options": ["Trypsin", "Pepsin", "Amylase", "Lipase"], "answer": "Pepsin"},
+    {"question": "The hepatic portal vein, hepatic artery, and bile ducts form the:", "options": ["Gastric Triangle", "Hepatic Triad", "Biliary Square", "Portal Pentagon"], "answer": "Hepatic Triad"},
+
+    # --- EQUINE (31-35) ---
+    {"question": "In the horse, which flexure occurs between the right ventral colon and left ventral colon?", "options": ["Pelvic flexure", "Diaphragmatic flexure", "Sternal flexure", "Sigmoid flexure"], "answer": "Sternal flexure"},
+    {"question": "Which flexure is located between the left ventral and left dorsal colon?", "options": ["Pelvic flexure", "Sternal flexure", "Diaphragmatic flexure", "Transverse flexure"], "answer": "Pelvic flexure"},
+    {"question": "What is the correct order of the horse's colon after the left dorsal colon?", "options": ["Cecum -> Anus", "Diaphragmatic flexure -> Right dorsal colon", "Sternal flexure -> Rectum", "Pelvic flexure -> Ventral colon"], "answer": "Diaphragmatic flexure -> Right dorsal colon"},
+    {"question": "Peristalsis is described as:", "options": ["Mixing and breaking up food", "Movement of food in a wave-like motion", "Chemical breakdown of acid", "Voluntary chewing"], "answer": "Movement of food in a wave-like motion"},
+    {"question": "What is 'Rhythmic Segmentation'?", "options": ["A long-distance wave", "Breaking up and mixing the food bolus", "Swallowing food", "Producing bile"], "answer": "Breaking up and mixing the food bolus"},
+
+    # --- NEUROLOGY (36-50) ---
+    {"question": "Which part of the nerve cell receives the initial stimuli?", "options": ["Axon", "Myelin sheath", "Dendrite", "Node of Ranvier"], "answer": "Dendrite"},
+    {"question": "What is the function of the myelin sheath?", "options": ["To protect the cell from bacteria", "To conduct impulses faster", "To store oxygen", "To produce neurotransmitters"], "answer": "To conduct impulses faster"},
+    {"question": "Afferent neurons carry information in which direction?", "options": ["From the spine to the muscles", "From the brain to the heart", "From the body into the spine", "From one muscle to another"], "answer": "From the body into the spine"},
+    {"question": "Efferent neurons are responsible for:", "options": ["Sensory input", "Carrying motor-movement signals OUT of the spine", "Detecting heat", "Thinking"], "answer": "Carrying motor-movement signals OUT of the spine"},
+    {"question": "The Diencephalon consists of the Thalamus, Hypothalamus, and the:", "options": ["Cerebellum", "Pituitary gland", "Medulla", "Pons"], "answer": "Pituitary gland"},
+    {"question": "Which organ acts as the link between the endocrine and nervous systems?", "options": ["Thalamus", "Hypothalamus", "Axon terminal", "Schwann cell"], "answer": "Hypothalamus"},
+    {"question": "The Central Nervous System (CNS) is made of:", "options": ["Cranial nerves and spinal nerves", "Brain and spinal cord", "Muscles and tendons", "Dendrites and Axons"], "answer": "Brain and spinal cord"},
+    {"question": "Which cells are found specifically in the Peripheral Nervous System (PNS)?", "options": ["Oligodendrocytes", "Glial cells", "Schwann cells", "Chief cells"], "answer": "Schwann cells"},
+    {"question": "What do neurons absolutely need to survive?", "options": ["Glucose only", "Oxygen", "Vitamin C", "Calcium"], "answer": "Oxygen"},
+    {"question": "The notches between individual myelin sheath segments are called:", "options": ["Axon terminals", "Nodes of Ranvier", "Dendrites", "Synapses"], "answer": "Nodes of Ranvier"},
+    {"question": "Which of the following is an example of a sensory receptor stimuli?", "options": ["Thinking", "Pressure", "Running", "Digestion"], "answer": "Pressure"},
+    {"question": "What does the hypothalamus control by influencing involuntary actions like sweating?", "options": ["Somatic nervous system", "Autonomic nervous system", "Voluntary muscles", "The digestive teeth"], "answer": "Autonomic nervous system"},
+    {"question": "Which cells provide support in the CNS (Central Nervous System)?", "options": ["Schwann cells", "Glial cells and Oligodendrocytes", "Parietal cells", "Dendrites"], "answer": "Glial cells and Oligodendrocytes"},
+    {"question": "The end of the nerve cell where signals are passed to the next cell is the:", "options": ["Nucleus", "Axon terminal", "Cell body", "Dendrite"], "answer": "Axon terminal"},
+    {"question": "Mechanical digestion differs from chemical digestion because it:", "options": ["Changes the chemical nature of food", "Does NOT change the chemical nature of food", "Only happens in the brain", "Requires hormones"], "answer": "Does NOT change the chemical nature of food"}
+]
+
+html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>A&P Winter 2026 - 50 Question Mega Quiz</title>
+    <style>
+        body {{ font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 20px; }}
+        .container {{ max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }}
+        h1 {{ color: #2c3e50; text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 10px; }}
+        .q-block {{ border-bottom: 1px solid #eee; padding: 20px 0; }}
+        .q-text {{ font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #34495e; }}
+        .opt {{ display: block; margin: 8px 0; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 6px; transition: 0.2s; }}
+        .opt:hover {{ background: #f0f7ff; border-color: #3498db; }}
+        .correct {{ background: #d4edda !important; border-color: #28a745 !important; color: #155724; }}
+        .wrong {{ background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }}
+        button {{ display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; margin-top: 20px; }}
+        #restart-btn {{ background: #27ae60; display: none; }}
+        #score-box {{ text-align: center; font-size: 24px; font-weight: bold; margin-top: 30px; color: #2c3e50; }}
+        .img-placeholder {{ text-align: center; margin: 15px 0; font-style: italic; color: #7f8c8d; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Midterm 1: Digestion & Neurology</h1>
+        <p style="text-align:center;">50 Questions - Winter Quarter 2026</p>
+        
+        <div class="img-placeholder">
+
+
+[Image of the human digestive system]
+
+        </div>
+        <div class="img-placeholder">
+
+
+[Image of a neuron with labeled parts]
+
+        </div>
+        <div class="img-placeholder">
+
+        </div>
+
+        <div id="quiz-root"></div>
+        <button id="submit-btn" onclick="checkAnswers()">Submit and Grade My Test</button>
+        <button id="restart-btn" onclick="startQuiz()">Try Again (Reshuffle Questions)</button>
+        <div id="score-box"></div>
+    </div>
+
+    <script>
+        let data = {json.dumps(quiz_data)};
+        const root = document.getElementById('quiz-root');
+
+        // Fisher-Yates Shuffle Algorithm
+        function shuffle(array) {{
+            for (let i = array.length - 1; i > 0; i--) {{
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }}
+            return array;
+        }}
+
+        function startQuiz() {{
+            // Reset UI
+            window.scrollTo(0,0);
+            document.getElementById('score-box').innerHTML = "";
+            document.getElementById('restart-btn').style.display = "none";
+            document.getElementById('submit-btn').style.display = "block";
+            
+            // Shuffle questions and their internal options
+            shuffle(data);
+            data.forEach(q => shuffle(q.options));
+
+            root.innerHTML = "";
+            data.forEach((q, i) => {{
+                let html = `<div class="q-block" id="block-${{i}}">
+                    <div class="q-text">${{i+1}}. ${{q.question}}</div>`;
+                q.options.forEach(opt => {{
+                    html += `<label class="opt">
+                        <input type="radio" name="q${{i}}" value="${{opt}}"> ${{opt}}
+                    </label>`;
+                }});
+                html += `<div id="ans-${{i}}" style="display:none; margin-top:10px; font-weight:bold;"></div></div>`;
+                root.innerHTML += html;
+            }});
+        }}
+
+        function checkAnswers() {{
+            let score = 0;
+            data.forEach((q, i) => {{
+                const selected = document.querySelector(`input[name="q${{i}}"]:checked`);
+                const feedback = document.getElementById(`ans-${{i}}`);
+                
+                feedback.style.display = "block";
+                
+                if(selected) {{
+                    if(selected.value === q.answer) {{
+                        score++;
+                        feedback.innerHTML = "✓ Correct";
+                        feedback.style.color = "green";
+                    }} else {{
+                        feedback.innerHTML = "✗ Incorrect. Correct: " + q.answer;
+                        feedback.style.color = "red";
+                    }}
+                }} else {{
+                    feedback.innerHTML = "⚠ Not answered. Correct: " + q.answer;
+                    feedback.style.color = "orange";
+                }}
+            }});
+            
+            document.getElementById('score-box').innerHTML = "Final Score: " + score + " / 50";
+            document.getElementById('submit-btn').style.display = "none";
+            document.getElementById('restart-btn').style.display = "block";
+            window.scrollTo(0, document.body.scrollHeight);
+        }}
+
+        // Initialize quiz on page load
+        startQuiz();
+    </script>
+</body>
+</html>
+"""
+
+file_name = "midterm_prep_shuffled.html"
+with open(file_name, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+webbrowser.open("file://" + os.path.abspath(file_name))
+print("Quiz generated with a shuffler! Good luck studying.")

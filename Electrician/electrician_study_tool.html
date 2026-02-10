@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electrician Apprentice Study Suite</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #f1c40f; padding-bottom: 10px; }
+        .nav-buttons { text-align: center; margin-bottom: 30px; }
+        .nav-buttons button { display: inline-block; width: auto; margin: 5px; padding: 10px 20px; font-size: 16px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .q-block { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .q-text { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #34495e; }
+        .opt { display: block; margin: 8px 0; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 6px; transition: 0.2s; }
+        .opt:hover { background: #fff9c4; border-color: #f1c40f; }
+        #flashcard-container { display: none; text-align: center; padding: 50px 20px; min-height: 300px; }
+        .card { background: #fff; border: 2px solid #f1c40f; border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card-q { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
+        .card-a { font-size: 22px; color: #27ae60; font-weight: bold; display: none; margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; }
+        button { display: block; width: 100%; padding: 15px; background: #f1c40f; color: #2c3e50; border: none; border-radius: 8px; font-size: 18px; font-weight:bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #f39c12; }
+        .secondary-btn { background: #95a5a6 !important; color: white !important; width: 30% !important; display: inline-block !important; margin: 5px; }
+        #score-box { text-align: center; font-size: 24px; font-weight: bold; margin-top: 30px; color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Apprentice Electrician Study Suite</h1>
+        <div class="nav-buttons">
+            <button onclick="showMode('quiz')">Quiz Mode</button>
+            <button onclick="showMode('flashcards')">Flashcard Mode</button>
+        </div>
+        
+        <div id="quiz-section">
+            <div id="quiz-root"></div>
+            <button id="submit-btn" onclick="checkAnswers()">Submit and Grade My Test</button>
+            <button id="restart-btn" style="display:none; background:#27ae60; color:white;" onclick="startQuiz()">Reshuffle & Restart Quiz</button>
+            <div id="score-box"></div>
+        </div>
+
+        <div id="flashcard-container">
+            <div class="card">
+                <div id="card-count" style="color: #7f8c8d; margin-bottom: 10px;"></div>
+                <div class="card-q" id="display-q"></div>
+                <button onclick="toggleCardAnswer()" style="background: #e67e22; color:white; width: auto; margin: auto; padding: 10px 20px;">Show / Hide Answer</button>
+                <div class="card-a" id="display-a"></div>
+            </div>
+            <div style="text-align: center;">
+                <button class="secondary-btn" onclick="prevCard()">Previous</button>
+                <button class="secondary-btn" onclick="markMastered()" style="background: #27ae60 !important;">Mastered!</button>
+                <button class="secondary-btn" onclick="nextCard()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = [{"question": "What is the unit of measurement for electrical resistance?", "options": ["Ampere", "Volt", "Ohm", "Watt"], "answer": "Ohm"}, {"question": "According to Ohm's Law, which formula represents Voltage (E)?", "options": ["E = I / R", "E = I * R", "E = R / I", "E = P * I"], "answer": "E = I * R"}, {"question": "What does NEC stand for?", "options": ["National Electric Corporation", "New Electric Code", "National Electrical Code", "National Energy Council"], "answer": "National Electrical Code"}, {"question": "Which color is reserved for the grounded circuit conductor (neutral) in a standard 120V system?", "options": ["Green", "Black", "White", "Red"], "answer": "White"}, {"question": "What is the primary purpose of a Lockout/Tagout (LOTO) procedure?", "options": ["To save energy", "To prevent accidental energization during maintenance", "To identify circuits", "To lock toolboxes"], "answer": "To prevent accidental energization during maintenance"}, {"question": "Which NEC Article covers Grounding and Bonding?", "options": ["Article 100", "Article 250", "Article 310", "Article 430"], "answer": "Article 250"}, {"question": "What is the standard frequency of Alternating Current (AC) in the United States?", "options": ["50 Hz", "60 Hz", "120 Hz", "220 Hz"], "answer": "60 Hz"}, {"question": "A multimeter is used to measure:", "options": ["Voltage, Current, and Resistance", "Speed and Time", "Weight and Balance", "Pressure and Temperature"], "answer": "Voltage, Current, and Resistance"}, {"question": "In a series circuit, what remains constant throughout the circuit?", "options": ["Voltage", "Current", "Resistance", "Power"], "answer": "Current"}, {"question": "In a parallel circuit, what remains constant across all branches?", "options": ["Voltage", "Current", "Resistance", "Power"], "answer": "Voltage"}, {"question": "What color is the equipment grounding conductor typically?", "options": ["White or Gray", "Black or Red", "Green or Bare Copper", "Blue or Yellow"], "answer": "Green or Bare Copper"}, {"question": "What is the unit of measurement for electrical power?", "options": ["Joule", "Watt", "Coulomb", "Henry"], "answer": "Watt"}, {"question": "Which device is designed to protect people from electrical shock by detecting ground faults?", "options": ["Fuse", "Circuit Breaker", "GFCI (Ground Fault Circuit Interrupter)", "Transformer"], "answer": "GFCI (Ground Fault Circuit Interrupter)"}, {"question": "What represents the 'electrical pressure' in a circuit?", "options": ["Amperage", "Wattage", "Voltage", "Resistance"], "answer": "Voltage"}, {"question": "Which NEC Article covers definitions?", "options": ["Article 100", "Article 110", "Article 200", "Article 210"], "answer": "Article 100"}, {"question": "A 'hot' wire in a standard 120V residential circuit is typically which color?", "options": ["Green", "White", "Black", "Gray"], "answer": "Black"}, {"question": "What tool is best used to bend Electrical Metallic Tubing (EMT)?", "options": ["Hickey or Hand Bender", "Pliers", "Hammer", "Wrench"], "answer": "Hickey or Hand Bender"}, {"question": "What does PPE stand for?", "options": ["Personal Power Equipment", "Personal Protective Equipment", "Professional Power Electric", "Protective Panel Enclosure"], "answer": "Personal Protective Equipment"}, {"question": "The flow of electrons through a conductor is called:", "options": ["Resistance", "Current", "Voltage", "Inductance"], "answer": "Current"}, {"question": "Which type of fire extinguisher is used for electrical fires?", "options": ["Class A", "Class B", "Class C", "Class K"], "answer": "Class C"}, {"question": "What happens to total resistance in a series circuit when more resistors are added?", "options": ["It decreases", "It stays the same", "It increases", "It becomes zero"], "answer": "It increases"}, {"question": "What happens to total resistance in a parallel circuit when more resistors are added?", "options": ["It decreases", "It stays the same", "It increases", "It becomes infinite"], "answer": "It decreases"}, {"question": "Which material is a good electrical insulator?", "options": ["Copper", "Aluminum", "Rubber", "Gold"], "answer": "Rubber"}, {"question": "Which NEC Article covers Motors, Motor Circuits, and Controllers?", "options": ["Article 250", "Article 300", "Article 430", "Article 500"], "answer": "Article 430"}, {"question": "The maximum number of degrees of bends allowed between pull points in a conduit run is:", "options": ["180 degrees", "270 degrees", "360 degrees", "450 degrees"], "answer": "360 degrees"}, {"question": "What is the formula for Power (P) using Voltage (E) and Current (I)?", "options": ["P = E / I", "P = E * I", "P = I / E", "P = E + I"], "answer": "P = E * I"}, {"question": "What does AFCI stand for?", "options": ["Arc Fault Circuit Interrupter", "Automatic Fuse Control Interface", "Alternating Frequency Current Indicator", "Ampere Fault Current Interrupter"], "answer": "Arc Fault Circuit Interrupter"}, {"question": "Which wire size is larger in diameter?", "options": ["14 AWG", "12 AWG", "10 AWG", "8 AWG"], "answer": "8 AWG"}, {"question": "What is the maximum current a 14 AWG copper wire is typically rated for in standard residential wiring (60\u00b0C)?", "options": ["15 Amps", "20 Amps", "30 Amps", "40 Amps"], "answer": "15 Amps"}, {"question": "What is the maximum current a 12 AWG copper wire is typically rated for in standard residential wiring?", "options": ["15 Amps", "20 Amps", "30 Amps", "50 Amps"], "answer": "20 Amps"}, {"question": "Direct Current (DC) differs from Alternating Current (AC) because:", "options": ["DC flows in two directions", "DC flows in only one direction", "DC has frequency", "DC is used in grid transmission"], "answer": "DC flows in only one direction"}, {"question": "Which tool is used to remove insulation from a wire?", "options": ["Linesman pliers", "Wire strippers", "Needle-nose pliers", "Channel locks"], "answer": "Wire strippers"}, {"question": "What is the purpose of a transformer?", "options": ["To convert AC to DC", "To store electricity", "To step up or step down voltage", "To generate power"], "answer": "To step up or step down voltage"}, {"question": "Which component is designed to melt and break the circuit if current exceeds a safe level?", "options": ["Circuit Breaker", "Fuse", "Relay", "Capacitor"], "answer": "Fuse"}, {"question": "The 'neutral' wire is technically called the:", "options": ["Ungrounded conductor", "Grounded conductor", "Grounding conductor", "Bonding jumper"], "answer": "Grounded conductor"}, {"question": "Which organization sets safety standards for the workplace in the US?", "options": ["NEC", "UL", "OSHA", "IEEE"], "answer": "OSHA"}, {"question": "The resistance of a circuit is 10 Ohms and the current is 5 Amps. What is the Voltage?", "options": ["2 Volts", "15 Volts", "50 Volts", "500 Volts"], "answer": "50 Volts"}, {"question": "The voltage is 120V and the resistance is 20 Ohms. What is the Current?", "options": ["0.16 Amps", "6 Amps", "100 Amps", "2400 Amps"], "answer": "6 Amps"}, {"question": "A 100W light bulb running on 120V draws approximately how much current?", "options": ["0.83 Amps", "1.2 Amps", "12 Amps", "120 Amps"], "answer": "0.83 Amps"}, {"question": "Which NEC Article generally covers Conductors for General Wiring?", "options": ["Article 210", "Article 310", "Article 400", "Article 410"], "answer": "Article 310"}, {"question": "What does 'EMT' stand for in conduit terms?", "options": ["Electrical Metal Tube", "Electrical Metallic Tubing", "Electric Master Tube", "Energy Management Tubing"], "answer": "Electrical Metallic Tubing"}, {"question": "When connecting a receptacle, the black (hot) wire connects to which screw?", "options": ["Silver screw", "Green screw", "Gold/Brass screw", "Any screw"], "answer": "Gold/Brass screw"}, {"question": "When connecting a receptacle, the white (neutral) wire connects to which screw?", "options": ["Silver screw", "Green screw", "Gold/Brass screw", "Any screw"], "answer": "Silver screw"}, {"question": "Which device stores electrical charge?", "options": ["Resistor", "Inductor", "Capacitor", "Diode"], "answer": "Capacitor"}, {"question": "Which device allows current to flow in only one direction?", "options": ["Resistor", "Switch", "Diode", "Transformer"], "answer": "Diode"}, {"question": "What is the standard voltage for a single-pole residential breaker?", "options": ["120V", "240V", "277V", "480V"], "answer": "120V"}, {"question": "A 'Three-way' switch system allows a light to be controlled from how many locations?", "options": ["One", "Two", "Three", "Four"], "answer": "Two"}, {"question": "Which test instrument detects the presence of voltage without making metallic contact?", "options": ["Multimeter", "Non-contact Voltage Tester (Tick Tracer)", "Megohmmeter", "Circuit Analyzer"], "answer": "Non-contact Voltage Tester (Tick Tracer)"}, {"question": "According to NEC, a continuous load is a load where the maximum current is expected to continue for how long?", "options": ["1 hour or more", "3 hours or more", "6 hours or more", "24 hours"], "answer": "3 hours or more"}, {"question": "What is the minimum working clearance depth in front of electrical equipment (0-150V)?", "options": ["12 inches", "24 inches", "30 inches", "36 inches"], "answer": "36 inches"}];
+        let activeCards = [...allData];
+        let currentCardIndex = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showMode(mode) {
+            if (mode === 'quiz') {
+                document.getElementById('quiz-section').style.display = 'block';
+                document.getElementById('flashcard-container').style.display = 'none';
+                startQuiz();
+            } else {
+                document.getElementById('quiz-section').style.display = 'none';
+                document.getElementById('flashcard-container').style.display = 'block';
+                activeCards = [...allData];
+                shuffle(activeCards);
+                currentCardIndex = 0;
+                updateFlashcard();
+            }
+        }
+
+        function startQuiz() {
+            window.scrollTo(0,0);
+            document.getElementById('score-box').innerHTML = "";
+            document.getElementById('restart-btn').style.display = "none";
+            document.getElementById('submit-btn').style.display = "block";
+            
+            shuffle(allData);
+            const root = document.getElementById('quiz-root');
+            root.innerHTML = "";
+
+            allData.forEach((q, i) => {
+                let opts = shuffle([...q.options]);
+                let html = `<div class="q-block" id="block-${i}"><div class="q-text">${i+1}. ${q.question}</div>`;
+                opts.forEach(opt => {
+                    html += `<label class="opt"><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`;
+                });
+                html += `<div id="ans-${i}" style="display:none; margin-top:10px; font-weight:bold;"></div></div>`;
+                root.innerHTML += html;
+            });
+        }
+
+        function checkAnswers() {
+            let score = 0;
+            allData.forEach((q, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const feedback = document.getElementById(`ans-${i}`);
+                feedback.style.display = "block";
+                
+                if(selected && selected.value === q.answer) {
+                    score++; feedback.innerHTML = "✓ Correct"; feedback.style.color = "green";
+                } else {
+                    feedback.innerHTML = "✗ Incorrect. Correct: " + q.answer; feedback.style.color = "red";
+                }
+            });
+            document.getElementById('score-box').innerHTML = "Final Score: " + score + " / " + allData.length;
+            document.getElementById('submit-btn').style.display = "none";
+            document.getElementById('restart-btn').style.display = "block";
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function updateFlashcard() {
+            if (activeCards.length === 0) {
+                document.getElementById('display-q').innerText = "All cards mastered!";
+                document.getElementById('display-a').style.display = 'none';
+                return;
+            }
+            document.getElementById('display-q').innerText = activeCards[currentCardIndex].question;
+            document.getElementById('display-a').innerText = activeCards[currentCardIndex].answer;
+            document.getElementById('display-a').style.display = 'none';
+            document.getElementById('card-count').innerText = `Card ${currentCardIndex + 1} / ${activeCards.length}`;
+        }
+
+        function toggleCardAnswer() {
+            const a = document.getElementById('display-a');
+            a.style.display = a.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function markMastered() {
+            if(activeCards.length === 0) return;
+            activeCards.splice(currentCardIndex, 1);
+            if (currentCardIndex >= activeCards.length) currentCardIndex = 0;
+            updateFlashcard();
+        }
+
+        function nextCard() { 
+            if(activeCards.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % activeCards.length; 
+            updateFlashcard(); 
+        }
+
+        function prevCard() { 
+            if(activeCards.length === 0) return;
+            currentCardIndex = (currentCardIndex - 1 + activeCards.length) % activeCards.length; 
+            updateFlashcard(); 
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+import webbrowser
+import os
+import json
+
+# Consolidated Quiz Data for all three levels
+study_data = {
+    "apprenticeship": [
+        {"question": "What is the unit of measurement for electrical resistance?", "options": ["Ampere", "Volt", "Ohm", "Watt"], "answer": "Ohm"},
+    {"question": "According to Ohm's Law, which formula represents Voltage (E)?", "options": ["E = I / R", "E = I * R", "E = R / I", "E = P * I"], "answer": "E = I * R"},
+    {"question": "What does NEC stand for?", "options": ["National Electric Corporation", "New Electric Code", "National Electrical Code", "National Energy Council"], "answer": "National Electrical Code"},
+    {"question": "Which color is reserved for the grounded circuit conductor (neutral) in a standard 120V system?", "options": ["Green", "Black", "White", "Red"], "answer": "White"},
+    {"question": "What is the primary purpose of a Lockout/Tagout (LOTO) procedure?", "options": ["To save energy", "To prevent accidental energization during maintenance", "To identify circuits", "To lock toolboxes"], "answer": "To prevent accidental energization during maintenance"},
+    {"question": "Which NEC Article covers Grounding and Bonding?", "options": ["Article 100", "Article 250", "Article 310", "Article 430"], "answer": "Article 250"},
+    {"question": "What is the standard frequency of Alternating Current (AC) in the United States?", "options": ["50 Hz", "60 Hz", "120 Hz", "220 Hz"], "answer": "60 Hz"},
+    {"question": "A multimeter is used to measure:", "options": ["Voltage, Current, and Resistance", "Speed and Time", "Weight and Balance", "Pressure and Temperature"], "answer": "Voltage, Current, and Resistance"},
+    {"question": "In a series circuit, what remains constant throughout the circuit?", "options": ["Voltage", "Current", "Resistance", "Power"], "answer": "Current"},
+    {"question": "In a parallel circuit, what remains constant across all branches?", "options": ["Voltage", "Current", "Resistance", "Power"], "answer": "Voltage"},
+    {"question": "What color is the equipment grounding conductor typically?", "options": ["White or Gray", "Black or Red", "Green or Bare Copper", "Blue or Yellow"], "answer": "Green or Bare Copper"},
+    {"question": "What is the unit of measurement for electrical power?", "options": ["Joule", "Watt", "Coulomb", "Henry"], "answer": "Watt"},
+    {"question": "Which device is designed to protect people from electrical shock by detecting ground faults?", "options": ["Fuse", "Circuit Breaker", "GFCI (Ground Fault Circuit Interrupter)", "Transformer"], "answer": "GFCI (Ground Fault Circuit Interrupter)"},
+    {"question": "What represents the 'electrical pressure' in a circuit?", "options": ["Amperage", "Wattage", "Voltage", "Resistance"], "answer": "Voltage"},
+    {"question": "Which NEC Article covers definitions?", "options": ["Article 100", "Article 110", "Article 200", "Article 210"], "answer": "Article 100"},
+    {"question": "A 'hot' wire in a standard 120V residential circuit is typically which color?", "options": ["Green", "White", "Black", "Gray"], "answer": "Black"},
+    {"question": "What tool is best used to bend Electrical Metallic Tubing (EMT)?", "options": ["Hickey or Hand Bender", "Pliers", "Hammer", "Wrench"], "answer": "Hickey or Hand Bender"},
+    {"question": "What does PPE stand for?", "options": ["Personal Power Equipment", "Personal Protective Equipment", "Professional Power Electric", "Protective Panel Enclosure"], "answer": "Personal Protective Equipment"},
+    {"question": "The flow of electrons through a conductor is called:", "options": ["Resistance", "Current", "Voltage", "Inductance"], "answer": "Current"},
+    {"question": "Which type of fire extinguisher is used for electrical fires?", "options": ["Class A", "Class B", "Class C", "Class K"], "answer": "Class C"},
+    {"question": "What happens to total resistance in a series circuit when more resistors are added?", "options": ["It decreases", "It stays the same", "It increases", "It becomes zero"], "answer": "It increases"},
+    {"question": "What happens to total resistance in a parallel circuit when more resistors are added?", "options": ["It decreases", "It stays the same", "It increases", "It becomes infinite"], "answer": "It decreases"},
+    {"question": "Which material is a good electrical insulator?", "options": ["Copper", "Aluminum", "Rubber", "Gold"], "answer": "Rubber"},
+    {"question": "Which NEC Article covers Motors, Motor Circuits, and Controllers?", "options": ["Article 250", "Article 300", "Article 430", "Article 500"], "answer": "Article 430"},
+    {"question": "The maximum number of degrees of bends allowed between pull points in a conduit run is:", "options": ["180 degrees", "270 degrees", "360 degrees", "450 degrees"], "answer": "360 degrees"},
+    {"question": "What is the formula for Power (P) using Voltage (E) and Current (I)?", "options": ["P = E / I", "P = E * I", "P = I / E", "P = E + I"], "answer": "P = E * I"},
+    {"question": "What does AFCI stand for?", "options": ["Arc Fault Circuit Interrupter", "Automatic Fuse Control Interface", "Alternating Frequency Current Indicator", "Ampere Fault Current Interrupter"], "answer": "Arc Fault Circuit Interrupter"},
+    {"question": "Which wire size is larger in diameter?", "options": ["14 AWG", "12 AWG", "10 AWG", "8 AWG"], "answer": "8 AWG"},
+    {"question": "What is the maximum current a 14 AWG copper wire is typically rated for in standard residential wiring (60°C)?", "options": ["15 Amps", "20 Amps", "30 Amps", "40 Amps"], "answer": "15 Amps"},
+    {"question": "What is the maximum current a 12 AWG copper wire is typically rated for in standard residential wiring?", "options": ["15 Amps", "20 Amps", "30 Amps", "50 Amps"], "answer": "20 Amps"},
+    {"question": "Direct Current (DC) differs from Alternating Current (AC) because:", "options": ["DC flows in two directions", "DC flows in only one direction", "DC has frequency", "DC is used in grid transmission"], "answer": "DC flows in only one direction"},
+    {"question": "Which tool is used to remove insulation from a wire?", "options": ["Linesman pliers", "Wire strippers", "Needle-nose pliers", "Channel locks"], "answer": "Wire strippers"},
+    {"question": "What is the purpose of a transformer?", "options": ["To convert AC to DC", "To store electricity", "To step up or step down voltage", "To generate power"], "answer": "To step up or step down voltage"},
+    {"question": "Which component is designed to melt and break the circuit if current exceeds a safe level?", "options": ["Circuit Breaker", "Fuse", "Relay", "Capacitor"], "answer": "Fuse"},
+    {"question": "The 'neutral' wire is technically called the:", "options": ["Ungrounded conductor", "Grounded conductor", "Grounding conductor", "Bonding jumper"], "answer": "Grounded conductor"},
+    {"question": "Which organization sets safety standards for the workplace in the US?", "options": ["NEC", "UL", "OSHA", "IEEE"], "answer": "OSHA"},
+    {"question": "The resistance of a circuit is 10 Ohms and the current is 5 Amps. What is the Voltage?", "options": ["2 Volts", "15 Volts", "50 Volts", "500 Volts"], "answer": "50 Volts"},
+    {"question": "The voltage is 120V and the resistance is 20 Ohms. What is the Current?", "options": ["0.16 Amps", "6 Amps", "100 Amps", "2400 Amps"], "answer": "6 Amps"},
+    {"question": "A 100W light bulb running on 120V draws approximately how much current?", "options": ["0.83 Amps", "1.2 Amps", "12 Amps", "120 Amps"], "answer": "0.83 Amps"},
+    {"question": "Which NEC Article generally covers Conductors for General Wiring?", "options": ["Article 210", "Article 310", "Article 400", "Article 410"], "answer": "Article 310"},
+    {"question": "What does 'EMT' stand for in conduit terms?", "options": ["Electrical Metal Tube", "Electrical Metallic Tubing", "Electric Master Tube", "Energy Management Tubing"], "answer": "Electrical Metallic Tubing"},
+    {"question": "When connecting a receptacle, the black (hot) wire connects to which screw?", "options": ["Silver screw", "Green screw", "Gold/Brass screw", "Any screw"], "answer": "Gold/Brass screw"},
+    {"question": "When connecting a receptacle, the white (neutral) wire connects to which screw?", "options": ["Silver screw", "Green screw", "Gold/Brass screw", "Any screw"], "answer": "Silver screw"},
+    {"question": "Which device stores electrical charge?", "options": ["Resistor", "Inductor", "Capacitor", "Diode"], "answer": "Capacitor"},
+    {"question": "Which device allows current to flow in only one direction?", "options": ["Resistor", "Switch", "Diode", "Transformer"], "answer": "Diode"},
+    {"question": "What is the standard voltage for a single-pole residential breaker?", "options": ["120V", "240V", "277V", "480V"], "answer": "120V"},
+    {"question": "A 'Three-way' switch system allows a light to be controlled from how many locations?", "options": ["One", "Two", "Three", "Four"], "answer": "Two"},
+    {"question": "Which test instrument detects the presence of voltage without making metallic contact?", "options": ["Multimeter", "Non-contact Voltage Tester (Tick Tracer)", "Megohmmeter", "Circuit Analyzer"], "answer": "Non-contact Voltage Tester (Tick Tracer)"},
+    {"question": "According to NEC, a continuous load is a load where the maximum current is expected to continue for how long?", "options": ["1 hour or more", "3 hours or more", "6 hours or more", "24 hours"], "answer": "3 hours or more"},
+    {"question": "What is the minimum working clearance depth in front of electrical equipment (0-150V)?", "options": ["12 inches", "24 inches", "30 inches", "36 inches"], "answer": "36 inches"}
+    ],
+    "journeyman": [
+        {"question": "What is the maximum recommended voltage drop for a combined feeder and branch circuit?", "options": ["2%", "3%", "5%", "10%"], "answer": "5%"},
+    {"question": "Which NEC Article covers the requirements for Grounding and Bonding?", "options": ["Article 210", "Article 240", "Article 250", "Article 310"], "answer": "Article 250"},
+    {"question": "What is the maximum number of 12 AWG conductors allowed in a 4 x 4 x 1-1/2 inch square metal box?", "options": ["9", "10", "13", "15"], "answer": "9"},
+    {"question": "According to NEC 210.52, receptacle outlets in a dwelling unit wall space must be spaced so that no point along the floor line is more than how far from an outlet?", "options": ["4 feet", "6 feet", "10 feet", "12 feet"], "answer": "6 feet"},
+    {"question": "When sizing motor overload protection for a motor with a service factor of 1.15, the device should be selected to trip at no more than what percentage of the nameplate full-load current?", "options": ["100%", "115%", "125%", "140%"], "answer": "125%"},
+    {"question": "What is the minimum working space clearance depth for equipment operating at 480V with exposed live parts on one side and grounded parts on the other (Condition 2)?", "options": ["3 feet", "3.5 feet", "4 feet", "5 feet"], "answer": "3.5 feet"},
+    {"question": "Conductors for a continuous load must be sized at what percentage of the continuous load current?", "options": ["80%", "100%", "125%", "150%"], "answer": "125%"},
+    {"question": "Which table is used to determine the ampacity of insulated conductors rated 0-2000 volts?", "options": ["Table 250.66", "Table 310.15(B)(16) (formerly 310.16)", "Table 430.248", "Chapter 9 Table 1"], "answer": "Table 310.15(B)(16) (formerly 310.16)"},
+    {"question": "How many degrees of bends are allowed in a single run of conduit between pull points?", "options": ["180 degrees", "270 degrees", "360 degrees", "450 degrees"], "answer": "360 degrees"},
+    {"question": "What is the minimum size copper grounding electrode conductor required for a 200A service fed by 3/0 AWG copper conductors?", "options": ["8 AWG", "6 AWG", "4 AWG", "2 AWG"], "answer": "4 AWG"},
+    {"question": "A 10 HP, 3-phase, 230V motor has a Full Load Amperage (FLA) of 28A. What is the minimum ampacity for the branch circuit conductors?", "options": ["28 A", "35 A", "40 A", "50 A"], "answer": "35 A"},
+    {"question": "In a residential garage, at least one 120-volt, 20-ampere branch circuit must be installed to supply receptacle outlets. This circuit generally cannot supply outlets:", "options": ["Inside the house", "Outside the garage", "In the attic", "In the basement"], "answer": "Outside the garage"},
+    {"question": "For a single-family dwelling, the service disconnecting means must have a rating of not less than:", "options": ["60 Amps", "100 Amps", "150 Amps", "200 Amps"], "answer": "100 Amps"},
+    {"question": "What is the volume allowance required per 14 AWG conductor in a box fill calculation?", "options": ["1.5 cubic inches", "2.0 cubic inches", "2.25 cubic inches", "2.5 cubic inches"], "answer": "2.0 cubic inches"},
+    {"question": "What is the volume allowance required per 12 AWG conductor in a box fill calculation?", "options": ["2.0 cubic inches", "2.25 cubic inches", "2.5 cubic inches", "3.0 cubic inches"], "answer": "2.25 cubic inches"},
+    {"question": "When applying the general lighting load for a dwelling unit, what is the unit load per square foot?", "options": ["1.5 VA", "2.0 VA", "3.0 VA", "4.5 VA"], "answer": "3.0 VA"},
+    {"question": "Which NEC article covers Solar Photovoltaic (PV) Systems?", "options": ["Article 680", "Article 690", "Article 700", "Article 702"], "answer": "Article 690"},
+    {"question": "What is the standard frequency of AC power in the US?", "options": ["50 Hz", "60 Hz", "120 Hz", "400 Hz"], "answer": "60 Hz"},
+    {"question": "If you have three 10-ohm resistors in parallel, what is the total resistance?", "options": ["3.33 Ohms", "10 Ohms", "30 Ohms", "33 Ohms"], "answer": "3.33 Ohms"},
+    {"question": "According to NEC 300.4(A)(1), holes bored in wood framing members must be at least how far from the nearest edge?", "options": ["1 inch", "1-1/4 inches", "1-1/2 inches", "2 inches"], "answer": "1-1/4 inches"},
+    {"question": "If a hole in a framing member is closer than 1-1/4 inches to the edge, what must be installed?", "options": ["A conduit sleeve", "A steel plate (nail plate)", "A warning label", "A GFCI"], "answer": "A steel plate (nail plate)"},
+    {"question": "Which type of conduit is known as 'Rigid Metal Conduit'?", "options": ["EMT", "RMC", "PVC", "FMC"], "answer": "RMC"},
+    {"question": "What is the maximum distance from a box that EMT must be supported?", "options": ["1 foot", "3 feet", "5 feet", "6 feet"], "answer": "3 feet"},
+    {"question": "The 'high leg' of a 120/240V, 3-phase, 4-wire delta system must be marked with which color?", "options": ["Black", "Red", "Blue", "Orange"], "answer": "Orange"},
+    {"question": "The high leg in a delta system is typically measuring what voltage to ground?", "options": ["120V", "208V", "240V", "277V"], "answer": "208V"},
+    {"question": "A general-purpose receptacle in a commercial building is calculated at how many VA per outlet?", "options": ["150 VA", "180 VA", "200 VA", "360 VA"], "answer": "180 VA"},
+    {"question": "Which Article governs Temporary Installations?", "options": ["Article 525", "Article 590", "Article 600", "Article 620"], "answer": "Article 590"},
+    {"question": "What is the maximum overcurrent protection allowed for 14 AWG copper wire (unless specific motor/hvac exceptions apply)?", "options": ["10 Amps", "15 Amps", "20 Amps", "25 Amps"], "answer": "15 Amps"},
+    {"question": "What is the maximum overcurrent protection for 12 AWG copper wire?", "options": ["15 Amps", "20 Amps", "25 Amps", "30 Amps"], "answer": "20 Amps"},
+    {"question": "What is the maximum overcurrent protection for 10 AWG copper wire?", "options": ["20 Amps", "25 Amps", "30 Amps", "40 Amps"], "answer": "30 Amps"},
+    {"question": "Under the optional method for a single-family dwelling, the first 10 kVA of load is calculated at what percentage?", "options": ["40%", "50%", "80%", "100%"], "answer": "100%"},
+    {"question": "In a Class I, Division 1 location, which wiring method is typically required?", "options": ["EMT with set screw connectors", "Threaded Rigid Metal Conduit", "PVC Schedule 40", "NM Cable"], "answer": "Threaded Rigid Metal Conduit"},
+    {"question": "When calculating the service load for a dryer, what is the minimum VA rating you must use?", "options": ["3000 VA", "4000 VA", "5000 VA", "6000 VA"], "answer": "5000 VA"},
+    {"question": "What is the smallest size wire allowed for a service-entrance conductor?", "options": ["10 AWG", "8 AWG", "6 AWG", "4 AWG"], "answer": "8 AWG"},
+    {"question": "Which NEC Article covers Swimming Pools, Fountains, and Similar Installations?", "options": ["Article 680", "Article 682", "Article 700", "Article 725"], "answer": "Article 680"},
+    {"question": "AC Cable (Armored Cable) must be supported within what distance of a box?", "options": ["6 inches", "12 inches", "18 inches", "24 inches"], "answer": "12 inches"},
+    {"question": "Liquidtight Flexible Metal Conduit (LFMC) is limited to what length when used for flexibility at equipment connections?", "options": ["3 feet", "4 feet", "6 feet", "10 feet"], "answer": "6 feet"},
+    {"question": "Which color is strictly reserved for the Equipment Grounding Conductor?", "options": ["White", "Gray", "Green (or bare)", "Black"], "answer": "Green (or bare)"},
+    {"question": "In a 3-wire, single-phase 120/240V system, how many ungrounded conductors are there?", "options": ["One", "Two", "Three", "Four"], "answer": "Two"},
+    {"question": "What is the multiplier for current when calculating the power in a 3-phase circuit (P = E x I x ...)?", "options": ["1.414", "1.732", "2.0", "3.14"], "answer": "1.732"},
+    {"question": "Auxiliary gutters must not extend greater than how many feet beyond the equipment they supplement?", "options": ["10 feet", "20 feet", "30 feet", "50 feet"], "answer": "30 feet"},
+    {"question": "A switch controlling a lighting load must be grounded. If a snap switch is replaced where no grounding means exists, it must be replaced with:", "options": ["A non-metallic faceplate and non-grounding switch", "A metal faceplate", "A GFCI breaker", "An AFCI breaker"], "answer": "A non-metallic faceplate and non-grounding switch"},
+    {"question": "Small appliance branch circuits in a dwelling unit must be rated at:", "options": ["15 Amps", "20 Amps", "30 Amps", "50 Amps"], "answer": "20 Amps"},
+    {"question": "How many small appliance branch circuits are required minimum in a dwelling kitchen area?", "options": ["One", "Two", "Three", "Four"], "answer": "Two"},
+    {"question": "Track lighting load is calculated at 150 VA for every ___ feet of track.", "options": ["1 foot", "2 feet", "4 feet", "5 feet"], "answer": "2 feet"},
+    {"question": "Which hazardous location classification involves combustible dust?", "options": ["Class I", "Class II", "Class III", "Class IV"], "answer": "Class II"},
+    {"question": "Underground service conductors installed in RMC must have a minimum cover depth of:", "options": ["6 inches", "12 inches", "18 inches", "24 inches"], "answer": "6 inches"},
+    {"question": "Direct buried UF cable generally requires a minimum cover depth of:", "options": ["12 inches", "18 inches", "24 inches", "30 inches"], "answer": "24 inches"},
+    {"question": "What is the minimum size required for the main bonding jumper in a service?", "options": ["Based on service entrance conductor size (Table 250.102(C)(1))", "Always 4 AWG", "Always 1/0 AWG", "Same size as grounding electrode conductor"], "answer": "Based on service entrance conductor size (Table 250.102(C)(1))"},
+    {"question": "A bathroom receptacle outlet must be on a separate 20A circuit unless:", "options": ["It also supplies the hallway", "The circuit supplies only that bathroom's outlets and lights", "The house is less than 1000 sq ft", "The receptacle is GFCI type"], "answer": "The circuit supplies only that bathroom's outlets and lights"}
+    ],
+    "master": [
+        {"question": "When calculating the service for a multifamily dwelling using the optional calculation (NEC 220.84), what demand factor is applied to the nameplate rating of 12 electrical ranges?", "options": ["40%", "41%", "45%", "50%"], "answer": "41%"},
+    {"question": "In a Class I, Division 1 location, conduit seals must be installed within what distance of the enclosure for an explosion-proof apparatus?", "options": ["12 inches", "18 inches", "24 inches", "36 inches"], "answer": "18 inches"},
+    {"question": "For a hospital, which branch of the Essential Electrical System supplies power to task illumination and selected receptacles in critical care areas?", "options": ["Life Safety Branch", "Critical Branch", "Equipment Branch", "Emergency System"], "answer": "Critical Branch"},
+    {"question": "What is the maximum overcurrent protection for a 480V primary, 3-phase transformer with 6% impedance, where the secondary protection is not provided?", "options": ["125%", "250%", "300%", "600%"], "answer": "300%"},
+    {"question": "Calculate the total load for a commercial building with 100 general purpose receptacles. (First 10 kVA at 100%, remainder at 50%).", "options": ["9,000 VA", "10,000 VA", "14,000 VA", "18,000 VA"], "answer": "14,000 VA"},
+    {"question": "In an isolated power system for a hospital operating room, the line isolation monitor must alarm when the total hazard current exceeds:", "options": ["2 mA", "3.7 mA", "5 mA", "6 mA"], "answer": "5 mA"},
+    {"question": "When calculating the feeder load for show windows, the load must be calculated at:", "options": ["150 VA per linear foot", "200 VA per linear foot", "180 VA per outlet", "200 watts per linear foot"], "answer": "200 VA per linear foot"},
+    {"question": "The disconnecting means for a 480V motor controller must be within sight and within what distance of the motor?", "options": ["25 feet", "50 feet", "75 feet", "100 feet"], "answer": "50 feet"},
+    {"question": "According to NEC 430.24, conductors supplying several motors must have an ampacity equal to the sum of the full-load current ratings of all the motors plus what percentage of the highest rated motor?", "options": ["25%", "50%", "100%", "125%"], "answer": "25%"},
+    {"question": "What is the minimum size copper grounding electrode conductor for a service with 500 kcmil copper service-entrance conductors?", "options": ["4 AWG", "2 AWG", "1/0 AWG", "2/0 AWG"], "answer": "1/0 AWG"},
+    {"question": "A 3-phase, 4-wire, wye-connected system usually has a voltage of:", "options": ["120/240V", "277/480V", "240/480V", "480/600V"], "answer": "277/480V"},
+    {"question": "What is the demand factor for a non-dwelling unit receptacle load greater than 10 kVA?", "options": ["40%", "50%", "70%", "80%"], "answer": "50%"},
+    {"question": "Which NEC table is used to determine the Full-Load Current (FLC) of a 3-phase AC motor?", "options": ["Table 430.247", "Table 430.248", "Table 430.250", "Table 430.52"], "answer": "Table 430.250"},
+    {"question": "In a photovoltaic system, rapid shutdown initiation devices must be located at:", "options": ["The array only", "The inverter only", "Readily accessible locations", "The utility meter"], "answer": "Readily accessible locations"},
+    {"question": "For a school building, the optional calculation method allows the lighting load to be calculated at how many VA per square foot?", "options": ["1.2 VA", "3 VA", "4.5 VA", "Based on actual connected load"], "answer": "Based on actual connected load"},
+    {"question": "Mobile home service equipment must be rated not less than:", "options": ["50 Amps", "60 Amps", "100 Amps", "125 Amps"], "answer": "100 Amps"},
+    {"question": "A transformer vault door must have a fire rating of at least:", "options": ["1 hour", "2 hours", "3 hours", "4 hours"], "answer": "3 hours"},
+    {"question": "The ampacity of a capacitor circuit conductor must be at least what percentage of the rated current of the capacitor?", "options": ["100%", "125%", "135%", "150%"], "answer": "135%"},
+    {"question": "When connecting two or more generators in parallel, which condition is NOT required?", "options": ["Same voltage", "Same frequency", "Same phase sequence", "Same amperage rating"], "answer": "Same amperage rating"},
+    {"question": "According to NEC 230.95, Ground-Fault Protection of Equipment (GFPE) is required for solidly grounded wye electrical services of more than 150 volts to ground but not exceeding 600 volts phase-to-phase for each service disconnect rated at:", "options": ["400 Amps or more", "800 Amps or more", "1000 Amps or more", "1200 Amps or more"], "answer": "1000 Amps or more"},
+    {"question": "What is the maximum setting for the ground-fault protection of equipment (GFPE)?", "options": ["1000 Amps", "1200 Amps", "3000 Amps", "4000 Amps"], "answer": "1200 Amps"},
+    {"question": "For calculating the neutral load on a feeder supplying electric ranges, the maximum unbalanced load is considered to be what percentage of the load?", "options": ["40%", "50%", "70%", "100%"], "answer": "70%"},
+    {"question": "Under the optional method for multifamily dwellings, house loads are calculated at what demand factor?", "options": ["75%", "80%", "90%", "100%"], "answer": "100%"},
+    {"question": "The maximum number of disconnects for a service is:", "options": ["1", "3", "6", "10"], "answer": "6"},
+    {"question": "In an agricultural building, what type of cable is specifically permitted for wet and corrosive environments?", "options": ["Type NM", "Type UF", "Type AC", "Type MC"], "answer": "Type UF"},
+    {"question": "Emergency system wiring must be kept entirely independent of all other wiring and equipment unless:", "options": ["In transfer switches", "In junction boxes", "Using the same raceway", "Bundled with cable ties"], "answer": "In transfer switches"},
+    {"question": "A legally required standby system must be able to supply power within:", "options": ["10 seconds", "30 seconds", "60 seconds", "90 minutes"], "answer": "60 seconds"},
+    {"question": "An emergency system must be able to supply power within:", "options": ["10 seconds", "30 seconds", "60 seconds", "2 hours"], "answer": "10 seconds"},
+    {"question": "What is the multiplier for the current of an arc welder with a 50% duty cycle?", "options": [".71", ".75", ".80", ".85"], "answer": ".71"},
+    {"question": "When conductors are installed in parallel (electrically joined at both ends), the minimum size is:", "options": ["1/0 AWG", "2/0 AWG", "4/0 AWG", "250 kcmil"], "answer": "1/0 AWG"},
+    {"question": "For a marina, the service load calculation allows a demand factor of 40% only if there are how many shore power receptacles?", "options": ["9-15", "16-50", "51-70", "71 or more"], "answer": "71 or more"},
+    {"question": "Which article applies to Fire Alarm Systems?", "options": ["Article 700", "Article 725", "Article 760", "Article 770"], "answer": "Article 760"},
+    {"question": "A motor controller enclosure in a Class I, Division 1 location must be:", "options": ["Dusttight", "Raintight", "Explosionproof", "General Purpose"], "answer": "Explosionproof"},
+    {"question": "The phase converter disconnect must be rated at not less than what percentage of the single-phase input full-load amperage?", "options": ["115%", "125%", "150%", "200%"], "answer": "115%"},
+    {"question": "In a bulk storage plant, the area within 3 feet of a fill pipe connection is classified as:", "options": ["Class I, Division 1", "Class I, Division 2", "Class II, Division 1", "Unclassified"], "answer": "Class I, Division 1"},
+    {"question": "What is the maximum voltage drop allowed for a sensitive electronic equipment branch circuit?", "options": ["1.5%", "2%", "3%", "5%"], "answer": "1.5%"},
+    {"question": "Which of the following determines the specific classification of a hazardous location?", "options": ["Temperature and Pressure", "Properties of the flammable materials present", "Voltage of the equipment", "Amperage of the circuit"], "answer": "Properties of the flammable materials present"},
+    {"question": "High-voltage cables (over 600V) in a tunnel must be supported at intervals not exceeding:", "options": ["4 feet", "6 feet", "8 feet", "10 feet"], "answer": "8 feet"},
+    {"question": "Neon tubing exceeding 1000V shall not be installed in:", "options": ["Commercial signs", "Dwelling units", "Theaters", "Parking garages"], "answer": "Dwelling units"},
+    {"question": "When sizing a generator for a fire pump, the voltage drop at the motor terminals during starting must not exceed:", "options": ["5%", "10%", "15%", "20%"], "answer": "15%"},
+    {"question": "Where an AC system operating at less than 1000V is grounded, the grounding electrode conductor shall be connected to the grounded service conductor at:", "options": ["The meter socket only", "The load side of the service disconnect", "Any accessible point from the load to the service point", "The transformer only"], "answer": "Any accessible point from the load to the service point"},
+    {"question": "For X-ray equipment, the ampacity of supply branch-circuit conductors and the current rating of overcurrent protective devices shall not be less than ___ of the momentary rating or ___ of the long-time rating, whichever is greater.", "options": ["50%, 100%", "60%, 125%", "40%, 80%", "125%, 150%"], "answer": "50%, 100%"},
+    {"question": "Cranes and hoists: The dimension of the working space in the direction of access to live parts operating at 600V or less shall be a minimum of:", "options": ["2.5 feet", "3 feet", "4 feet", "6 feet"], "answer": "2.5 feet"},
+    {"question": "Calculated load for heavy-duty track lighting is:", "options": ["150 VA per foot", "180 VA per foot", "600 VA per foot", "1200 VA per foot"], "answer": "600 VA per foot"},
+    {"question": "For a rectifier-type welder, the ampacity of the supply conductors shall not be less than the rated primary current multiplied by the multiplier in Table 630.11(A) based on:", "options": ["Duty cycle", "Arc voltage", "Power factor", "Temperature rise"], "answer": "Duty cycle"},
+    {"question": "Which article covers Critical Operations Power Systems (COPS)?", "options": ["Article 700", "Article 701", "Article 702", "Article 708"], "answer": "Article 708"},
+    {"question": "Conduit bodies are also known as:", "options": ["Junction boxes", "Condulets", "Handholes", "Pull boxes"], "answer": "Condulets"},
+    {"question": "Underground conductors for a 240V landscape lighting system under a driveway (one-family dwelling) must have a minimum cover of:", "options": ["12 inches", "18 inches", "24 inches", "30 inches"], "answer": "18 inches"},
+    {"question": "The operational test for a GFCI receptacle should be performed how often?", "options": ["Daily", "Weekly", "Monthly", "Annually"], "answer": "Monthly"},
+    {"question": "In a recreational vehicle park, what percentage of sites must be equipped with 50-ampre, 120/240-volt receptacles?", "options": ["5%", "20%", "50%", "100%"], "answer": "20%"}
+    ],
+    "aptitude": [
+        # --- MATH SECTION (33 Questions) ---
+        {"question": "Simplify the expression: 4(x + 2) - 3 = 13", "options": ["x = 2", "x = 3", "x = 4", "x = 1"], "answer": "x = 2"},
+        {"question": "What is the next number in the sequence: 2, 4, 8, 16, ...?", "options": ["24", "30", "32", "36"], "answer": "32"},
+        {"question": "Solve for y: y/3 + 5 = 9", "options": ["12", "15", "9", "4"], "answer": "12"},
+        {"question": "Multiply: 3.5 × 0.4", "options": ["1.2", "1.4", "1.6", "14.0"], "answer": "1.4"},
+        {"question": "Which fraction is largest?", "options": ["1/2", "3/8", "5/8", "1/4"], "answer": "5/8"},
+        {"question": "Solve for x: 2x - 7 = 15", "options": ["11", "8", "12", "4"], "answer": "11"},
+        {"question": "Solve for x: 5(x - 1) = 20", "options": ["3", "4", "5", "6"], "answer": "5"},
+        {"question": "If x² = 36 and x > 0, what is x?", "options": ["4", "6", "9", "12"], "answer": "6"},
+        {"question": "What is the next number: 10, 13, 16, 19, ...?", "options": ["21", "22", "23", "25"], "answer": "22"},
+        {"question": "Solve: 3x + 4 = 19", "options": ["5", "6", "7", "8"], "answer": "5"},
+        {"question": "Calculate 15% of 60.", "options": ["8", "9", "10", "12"], "answer": "9"},
+        {"question": "Add the fractions: 1/4 + 1/2", "options": ["3/4", "2/6", "3/8", "1/3"], "answer": "3/4"},
+        {"question": "Subtract: 0.75 - 0.2", "options": ["0.55", "0.73", "0.50", "0.25"], "answer": "0.55"},
+        {"question": "If a = 3 and b = 2, what is 2a + 3b?", "options": ["10", "11", "12", "13"], "answer": "12"},
+        {"question": "Solve for x: 100 / x = 20", "options": ["2", "4", "5", "10"], "answer": "5"},
+        {"question": "What comes next: 50, 45, 40, 35, ...?", "options": ["25", "30", "32", "33"], "answer": "30"},
+        {"question": "Solve for x: (x/2) + 3 = 8", "options": ["5", "8", "10", "16"], "answer": "10"},
+        {"question": "Solve for x: 3x = x + 10", "options": ["2", "4", "5", "10"], "answer": "5"},
+        {"question": "Which decimal is the smallest?", "options": ["0.1", "0.01", "0.11", "1.0"], "answer": "0.01"},
+        {"question": "Multiply: 2.5 × 2.5", "options": ["5.0", "6.0", "6.25", "5.25"], "answer": "6.25"},
+        {"question": "Solve for x: x - 5 = -2", "options": ["-7", "-3", "3", "7"], "answer": "3"},
+        {"question": "Divide: 8 ÷ 0.5", "options": ["4", "8", "12", "16"], "answer": "16"},
+        {"question": "What is the next number: 1, 4, 9, 16, ...?", "options": ["20", "24", "25", "30"], "answer": "25"},
+        {"question": "A tool costs $20. It is on sale for 10% off. What is the new price?", "options": ["$10", "$12", "$18", "$19"], "answer": "$18"},
+        {"question": "Solve for x: 3(2x + 1) = 21", "options": ["2", "3", "4", "5"], "answer": "3"},
+        {"question": "Calculate: -5 + 8", "options": ["-13", "-3", "3", "13"], "answer": "3"},
+        {"question": "What is 1/3 of 9?", "options": ["1", "3", "6", "9"], "answer": "3"},
+        {"question": "If x + y = 10 and x - y = 2, what is x?", "options": ["4", "5", "6", "8"], "answer": "6"},
+        {"question": "What is the next number: 3, 6, 12, 24, ...?", "options": ["30", "36", "48", "50"], "answer": "48"},
+        {"question": "Convert 0.6 to a fraction in simplest form.", "options": ["1/6", "3/5", "6/10", "2/3"], "answer": "3/5"},
+        {"question": "What is the decimal equivalent of 1/8?", "options": ["0.125", "0.25", "0.5", "0.18"], "answer": "0.125"},
+        {"question": "What is the area of a rectangle with length 5 and width 4?", "options": ["9", "18", "20", "25"], "answer": "20"},
+        {"question": "What is the perimeter of a square with a side length of 3?", "options": ["6", "9", "12", "15"], "answer": "12"},
+
+        # --- READING SECTION (36 Questions) ---
+        {"question": "READING: 'The safety protocol requires all workers to wear insulated gloves when handling live wires. John forgot his gloves.' Based on this, which statement is true?", "options": ["John followed protocol.", "John violated safety protocol.", "Gloves are optional.", "John is safe."], "answer": "John violated safety protocol."},
+        {"question": "READING: 'Conduit acts as a protective tube for electrical wires. It can be made of metal or plastic.' What is the primary function of conduit?", "options": ["To conduct electricity", "To look good", "To protect wires", "To heat the building"], "answer": "To protect wires"},
+        {"question": "READING: 'Blueprints allow electricians to see where circuits should be run before construction begins.' Why are blueprints important?", "options": ["They serve as wallpaper.", "They prevent planning.", "They guide installation planning.", "They are only for architects."], "answer": "They guide installation planning."},
+        {"question": "READING: 'A circuit breaker interrupts current flow when it detects an overload.' What happens during an overload?", "options": ["The breaker stays closed.", "The breaker trips/opens.", "The current increases.", "Nothing happens."], "answer": "The breaker trips/opens."},
+        {"question": "READING: 'Lockout/Tagout procedures ensure equipment cannot be energized while maintenance is performed.' What is the goal of Lockout/Tagout?", "options": ["To start machines faster.", "To prevent accidental startup.", "To lock doors.", "To tag prices."], "answer": "To prevent accidental startup."},
+        {"question": "READING: 'Wire stripping involves removing the plastic insulation to expose the conductive copper core.' What is exposed after stripping?", "options": ["Plastic", "Insulation", "Copper core", "Rubber"], "answer": "Copper core"},
+        {"question": "READING: 'A GFCI outlet protects users from ground faults by cutting power instantly.' What does a GFCI prevent?", "options": ["Power outages", "Ground faults/Shock", "High bills", "Lightning"], "answer": "Ground faults/Shock"},
+        {"question": "READING: 'Multimeters can measure voltage, current, and resistance.' Which is NOT measured by a standard multimeter?", "options": ["Voltage", "Temperature (typically)", "Weight", "Resistance"], "answer": "Weight"},
+        {"question": "READING: 'Ladders should be placed at a 4:1 angle for stability.' If a ladder reaches 20 feet up, how far should the base be from the wall?", "options": ["4 feet", "5 feet", "10 feet", "20 feet"], "answer": "5 feet"},
+        {"question": "READING: 'Grounding provides a safe path for excess current to flow into the earth.' Where does excess current go in a grounded system?", "options": ["Into the air", "Into the user", "Into the earth", "Into the switch"], "answer": "Into the earth"},
+        {"question": "READING: 'PPE (Personal Protective Equipment) must be inspected before every use.' When should PPE be checked?", "options": ["Once a year", "Before every use", "After an accident", "Never"], "answer": "Before every use"},
+        {"question": "READING: 'Confined spaces require a permit and air monitoring before entry.' What is required before entering a confined space?", "options": ["Lunch", "A permit and monitoring", "A flashlight only", "Nothing"], "answer": "A permit and monitoring"},
+        {"question": "READING: 'Always test a circuit to ensure it is de-energized before touching it.' What is the first step before touching a wire?", "options": ["Touch it quickly", "Test it", "Cut it", "Wash hands"], "answer": "Test it"},
+        {"question": "READING: 'Clear communication between team members prevents job site accidents.' What helps prevent accidents?", "options": ["Silence", "Clear communication", "Working alone", "Running"], "answer": "Clear communication"},
+        {"question": "READING: 'Tools with damaged cords should be removed from service immediately.' What should you do with a damaged drill cord?", "options": ["Tape it up", "Use it anyway", "Remove it from service", "Hide it"], "answer": "Remove it from service"},
+        {"question": "READING: 'Lift heavy objects with your legs, not your back, to avoid injury.' Which body part should do the lifting?", "options": ["Back", "Arms", "Legs", "Neck"], "answer": "Legs"},
+        {"question": "READING: 'Water and electricity are a dangerous combination; never operate electrical tools in standing water.' Can you use tools in a puddle?", "options": ["Yes, if careful", "No, never", "Only cordless tools", "Yes, with boots"], "answer": "No, never"},
+        {"question": "READING: 'The green or bare wire typically designates the grounding conductor.' What color is the ground wire?", "options": ["Black", "White", "Green or Bare", "Red"], "answer": "Green or Bare"},
+        {"question": "READING: 'Ohm's Law describes the relationship between Voltage, Current, and Resistance.' Which elements are related by Ohm's Law?", "options": ["Heat, Power, Time", "Voltage, Current, Resistance", "Speed, Distance, Time", "Weight, Mass, Gravity"], "answer": "Voltage, Current, Resistance"},
+        {"question": "READING: 'A loose connection in a panel can cause arcing and heat buildup.' What is a symptom of a loose connection?", "options": ["Cooling", "Better flow", "Heat buildup/Arcing", "Silence"], "answer": "Heat buildup/Arcing"},
+        {"question": "READING: 'When replacing a fuse, it must be replaced with one of the exact same amperage rating.' Can you use a larger fuse?", "options": ["Yes, always", "No, must be same rating", "Yes, if it fits", "No, use smaller"], "answer": "No, must be same rating"},
+        {"question": "READING: 'Extension cords are for temporary use only and should not be used as permanent wiring.' How long should extension cords be used?", "options": ["Permanently", "Temporarily", "Forever", "Inside walls"], "answer": "Temporarily"},
+        {"question": "READING: 'Emergency stop buttons shut down machinery immediately in a crisis.' When should you use the E-stop?", "options": ["To pause work", "In an emergency", "At the end of the day", "To test it"], "answer": "In an emergency"},
+        {"question": "READING: 'If a coworker is being shocked, do not touch them if they are still in contact with the source.' What should you NOT do?", "options": ["Call 911", "Turn off power", "Touch them directly", "Yell for help"], "answer": "Touch them directly"},
+        {"question": "READING: 'Loose clothing and jewelry should be secured before using rotating power tools.' Why secure loose items?", "options": ["To look professional", "To prevent entanglement", "To stay warm", "To hide jewelry"], "answer": "To prevent entanglement"},
+        {"question": "READING: 'Electrical panels must be clearly labeled to identify which circuit controls which area.' Why label panels?", "options": ["For decoration", "To identify circuits", "To pass time", "It is optional"], "answer": "To identify circuits"},
+        {"question": "READING: 'Wire gauge refers to the thickness of the wire; a lower number indicates a thicker wire.' Which wire is thicker: 12 AWG or 14 AWG?", "options": ["14 AWG", "12 AWG", "They are the same", "Depends on color"], "answer": "12 AWG"},
+        {"question": "READING: 'Alternating Current (AC) changes direction periodically, while Direct Current (DC) flows in one direction.' How does DC flow?", "options": ["Back and forth", "In one direction", "Randomly", "It doesn't flow"], "answer": "In one direction"},
+        {"question": "READING: 'Batteries contain chemicals and must be disposed of properly, not in regular trash.' Where do batteries go?", "options": ["Regular trash", "The ocean", "Proper disposal/Recycling", "Burn barrel"], "answer": "Proper disposal/Recycling"},
+        {"question": "READING: 'Safety glasses protect eyes from flying debris during cutting or drilling.' What protects your eyes?", "options": ["Squinting", "Sunglasses", "Safety glasses", "Nothing"], "answer": "Safety glasses"},
+        {"question": "READING: 'Inspect ladders for cracks or loose rungs before climbing.' What should you look for?", "options": ["Paint color", "Cracks/Loose rungs", "Brand name", "Dirt"], "answer": "Cracks/Loose rungs"},
+        {"question": "READING: 'Overloading a circuit by plugging in too many devices can cause wires to overheat.' What causes overheating?", "options": ["Unplugging devices", "Overloading the circuit", "Using a surge protector", "Cold weather"], "answer": "Overloading the circuit"},
+        {"question": "READING: 'If a screw head is stripped, use a screw extractor to remove it.' What tool removes a stripped screw?", "options": ["Hammer", "Wrench", "Screw extractor", "Saw"], "answer": "Screw extractor"},
+        {"question": "READING: 'Keep the workspace clean to prevent tripping hazards.' Why clean the workspace?", "options": ["To look busy", "To prevent trips", "To find lost coins", "To make dust"], "answer": "To prevent trips"},
+        {"question": "READING: 'Report any safety hazards to a supervisor immediately.' When should you report a hazard?", "options": ["Next week", "Never", "Immediately", "After lunch"], "answer": "Immediately"},
+        {"question": "READING: 'Read the operator manual to understand how to use new equipment safely.' What should you read before using new tools?", "options": ["The newspaper", "The operator manual", "A comic book", "Nothing"], "answer": "The operator manual"}
+    ]
+}
+
+html_template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Study Portal</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --journeyman: #2980b9;
+            --master: #8e44ad;
+            --apprentice: #27ae60;
+            --aptitude: #c0392b;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        /* Home Screen Styles */
+        #home-screen { text-align: center; padding: 40px 0; }
+        .hero-title { color: var(--primary); font-size: 2.5em; margin-bottom: 10px; }
+        .hero-subtitle { color: #7f8c8d; margin-bottom: 40px; }
+        .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .portal-card { padding: 30px; border-radius: 12px; color: white; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-align: center; }
+        .portal-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .card-apprentice { background: var(--apprentice); }
+        .card-journeyman { background: var(--journeyman); }
+        .card-master { background: var(--master); }
+        .card-aptitude { background: var(--aptitude); grid-column: 1 / -1; }
+        
+        /* App UI Styles */
+        #app-ui { display: none; }
+        .header-bar { 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            border-bottom: 2px solid #eee; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+        }
+        .back-btn { 
+    background: #95a5a6; 
+    color: white; 
+    border: none; 
+    padding: 8px 15px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    justify-self: start;
+}
+        
+        .header-bar h2 {
+            text-align: center;
+        }
+        
+        #timer-display { 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            color: var(--aptitude); 
+            display: none;
+            text-align: right;
+        }
+
+        .mode-nav { text-align: center; margin-bottom: 25px; }
+        .mode-nav button { margin: 0 10px; padding: 12px 25px; border-radius: 30px; border: 2px solid #ddd; background: white; cursor: pointer; font-weight: bold; }
+        .mode-nav button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Quiz & Cards UI */
+        .q-block { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .q-text { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; color: var(--primary); }
+        .opt { display: block; margin: 10px 0; cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: 0.2s; }
+        .opt:hover { background: #f9f9f9; }
+        
+        #flashcard-view { display: none; text-align: center; }
+        .card { background: white; border: 3px solid var(--primary); border-radius: 20px; padding: 50px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card-q { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; }
+        .card-a { font-size: 1.3em; color: var(--apprentice); font-weight: bold; display: none; padding-top: 20px; border-top: 1px solid #eee; width: 100%; }
+        
+        .action-btn { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; width: 100%; margin-top: 20px; }
+        .secondary-group { display: flex; gap: 10px; }
+        .secondary-group button { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+        
+        #score-box { text-align: center; font-size: 1.5em; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HOME SCREEN -->
+        <div id="home-screen">
+            <h1 class="hero-title">Electrical Study Portal</h1>
+            <p class="hero-subtitle">Select your certification level to begin studying</p>
+            <div class="portal-grid">
+                <div class="portal-card card-aptitude" onclick="launch('aptitude')">
+                    <h2>Pre-Apprenticeship Aptitude Test</h2>
+                    <p>Math & Reading (Timed: 97 Mins)</p>
+                </div>
+                <div class="portal-card card-apprentice" onclick="launch('apprenticeship')">
+                    <h2>Apprenticeship</h2>
+                    <p>Core Fundamentals & Safety</p>
+                </div>
+                <div class="portal-card card-journeyman" onclick="launch('journeyman')">
+                    <h2>Journeyman</h2>
+                    <p>Advanced NEC & Calculations</p>
+                </div>
+                <div class="portal-card card-master" onclick="launch('master')">
+                    <h2>Master</h2>
+                    <p>Complex Systems & Engineering</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP UI -->
+        <div id="app-ui">
+            <div class="header-bar">
+                <button class="back-btn" onclick="goHome()">← Back to Portal</button>
+                <h2 id="current-level-title">Level</h2>
+                <div id="timer-display">00:00</div>
+            </div>
+
+            <div class="mode-nav" id="mode-controls">
+                <button id="btn-quiz" class="active" onclick="switchMode('quiz')">Quiz Mode</button>
+                <button id="btn-flash" onclick="switchMode('flashcards')">Flashcards</button>
+            </div>
+
+            <div id="quiz-view">
+                <div id="quiz-content"></div>
+                <button class="action-btn" id="submit-quiz" onclick="gradeQuiz()">Submit Exam</button>
+                <button class="action-btn" id="reset-quiz" style="display:none; background:#27ae60;" onclick="setupQuiz()">New Random Quiz</button>
+                <div id="score-box"></div>
+            </div>
+
+            <div id="flashcard-view">
+                <div class="card" onclick="toggleAnswer()">
+                    <div id="card-meta" style="color:#95a5a6; margin-bottom:10px;"></div>
+                    <div class="card-q" id="fc-question"></div>
+                    <div class="card-a" id="fc-answer"></div>
+                    <p style="color:#bdc3c7; font-size: 0.8em; margin-top: 20px;">(Click card to reveal answer)</p>
+                </div>
+                <div class="secondary-group">
+                    <button style="background:#bdc3c7;" onclick="prevCard()">Previous</button>
+                    <button style="background:#27ae60; color:white;" onclick="masterCard()">Mastered</button>
+                    <button style="background:#34495e; color:white;" onclick="nextCard()">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allData = JSON_DATA_MAP;
+        let currentLevel = '';
+        let currentQuestions = [];
+        let currentMode = 'quiz';
+        
+        // Timer Variables
+        let timerInterval;
+        let timeRemaining = 0;
+
+        // Flashcard State
+        let activeCards = [];
+        let cardIdx = 0;
+
+        function shuffle(arr) {
+            return arr.sort(() => Math.random() - 0.5);
+        }
+
+        function launch(level) {
+            currentLevel = level;
+            currentQuestions = [...allData[level]];
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('app-ui').style.display = 'block';
+            
+            const titles = {
+                apprenticeship: "Apprentice Suite",
+                journeyman: "Journeyman Suite",
+                master: "Master Suite",
+                aptitude: "Aptitude Test"
+            };
+            document.getElementById('current-level-title').innerText = titles[level];
+            
+            // Set theme color
+            const colors = { apprenticeship: '#27ae60', journeyman: '#2980b9', master: '#8e44ad', aptitude: '#c0392b' };
+            document.querySelector('.container').style.borderTop = `10px solid ${colors[level]}`;
+            
+            // Handle Aptitude Special Cases (Timer + No Flashcards for strict test feel? Optional, but kept both for study)
+            if (level === 'aptitude') {
+                document.getElementById('timer-display').style.display = 'block';
+                // 97 minutes = 5820 seconds (typical JATC breakdown: 46 Math + 51 Reading)
+                startTimer(97 * 60); 
+            } else {
+                document.getElementById('timer-display').style.display = 'none';
+                stopTimer();
+            }
+
+            switchMode('quiz');
+        }
+
+        function goHome() {
+            document.getElementById('home-screen').style.display = 'block';
+            document.getElementById('app-ui').style.display = 'none';
+            document.querySelector('.container').style.borderTop = `none`;
+            stopTimer();
+        }
+
+        function startTimer(durationSeconds) {
+            stopTimer(); // clear any existing
+            timeRemaining = durationSeconds;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    stopTimer();
+                    alert("Time is up! Submitting exam automatically.");
+                    gradeQuiz();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer-display').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-quiz').classList.toggle('active', mode === 'quiz');
+    document.getElementById('btn-flash').classList.toggle('active', mode === 'flashcards');
+    
+    document.getElementById('quiz-view').style.display = mode === 'quiz' ? 'block' : 'none';
+    document.getElementById('flashcard-view').style.display = mode === 'flashcards' ? 'block' : 'none';
+    
+    // Stop timer when switching to flashcards, restart when going back to quiz
+    if (currentLevel === 'aptitude') {
+        if (mode === 'flashcards') {
+            stopTimer();
+            document.getElementById('timer-display').style.display = 'none';
+        } else if (mode === 'quiz') {
+            document.getElementById('timer-display').style.display = 'block';
+            startTimer(97 * 60); // Restart the 97-minute timer
+        }
+    }
+    
+    if (mode === 'quiz') setupQuiz();
+    else setupFlashcards();
+}
+
+        // --- QUIZ LOGIC ---
+        function setupQuiz() {
+            if (currentLevel !== 'aptitude') {
+                shuffle(currentQuestions);
+            }
+            // For aptitude, we might want to keep math/reading grouped, but shuffling is fine for study practice.
+            // If strict structure needed, we wouldn't shuffle. For now, shuffling enabled.
+            
+            const container = document.getElementById('quiz-content');
+            container.innerHTML = '';
+            document.getElementById('score-box').innerText = '';
+            document.getElementById('submit-quiz').style.display = 'block';
+            document.getElementById('reset-quiz').style.display = 'none';
+
+            currentQuestions.forEach((q, i) => {
+                const opts = shuffle([...q.options]);
+                let html = `
+                    <div class="q-block">
+                        <div class="q-text">${i+1}. ${q.question}</div>
+                        ${opts.map(o => `
+                            <label class="opt">
+                                <input type="radio" name="q${i}" value="${o}"> ${o}
+                            </label>
+                        `).join('')}
+                        <div id="fb-${i}" style="margin-top:10px; font-weight:bold; display:none;"></div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+            window.scrollTo(0,0);
+        }
+
+        function gradeQuiz() {
+            stopTimer(); // Stop timer when they submit
+            let score = 0;
+            currentQuestions.forEach((q, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const fb = document.getElementById(`fb-${i}`);
+                fb.style.display = 'block';
+                if (selected && selected.value === q.answer) {
+                    score++;
+                    fb.innerText = "✓ Correct";
+                    fb.style.color = "green";
+                } else {
+                    fb.innerText = "✗ Incorrect. Correct answer: " + q.answer;
+                    fb.style.color = "red";
+                }
+            });
+            document.getElementById('score-box').innerText = `Score: ${score} / ${currentQuestions.length}`;
+            document.getElementById('submit-quiz').style.display = 'none';
+            document.getElementById('reset-quiz').style.display = 'block';
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        // --- FLASHCARD LOGIC ---
+        function setupFlashcards() {
+            activeCards = shuffle([...currentQuestions]);
+            cardIdx = 0;
+            updateCard();
+        }
+
+        function updateCard() {
+            const qEl = document.getElementById('fc-question');
+            const aEl = document.getElementById('fc-answer');
+            const meta = document.getElementById('card-meta');
+            
+            if (activeCards.length === 0) {
+                qEl.innerText = "Level Mastered!";
+                aEl.innerText = "Refresh to restart stack.";
+                meta.innerText = "";
+                return;
+            }
+            
+            qEl.innerText = activeCards[cardIdx].question;
+            aEl.innerText = activeCards[cardIdx].answer;
+            aEl.style.display = 'none';
+            meta.innerText = `Card ${cardIdx + 1} of ${activeCards.length}`;
+        }
+
+        function toggleAnswer() {
+            const a = document.getElementById('fc-answer');
+            a.style.display = a.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function nextCard() { cardIdx = (cardIdx + 1) % activeCards.length; updateCard(); }
+        function prevCard() { cardIdx = (cardIdx - 1 + activeCards.length) % activeCards.length; updateCard(); }
+        function masterCard() {
+            activeCards.splice(cardIdx, 1);
+            if (cardIdx >= activeCards.length) cardIdx = 0;
+            updateCard();
+        }
+    </script>
+</body>
+</html>
+"""
+
+# Convert data and generate file
+final_html = html_template.replace("JSON_DATA_MAP", json.dumps(study_data))
+
+file_path = "unified_electrician_study_suite.html"
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(final_html)
+
+webbrowser.open("file://" + os.path.abspath(file_path))

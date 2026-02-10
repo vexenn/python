@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetMed SafeCalc 2026</title>
+    <style>
+        :root {
+            --primary: #2c7a7b;
+            --secondary: #e6fffa;
+            --warning: #c05621;
+            --error: #e53e3e;
+            --text: #2d3748;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f7fafc;
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: var(--primary); }
+        
+        /* Navigation Tabs */
+        .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #e2e8f0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Calculator Sections */
+        .calc-section { display: none; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .calc-section.active { display: block; }
+        
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            box-sizing: border-box; /* Fix padding issues */
+        }
+        
+        button.calculate {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button.calculate:hover { background-color: #235c5d; }
+
+        /* Results & Alerts */
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--secondary);
+            border-left: 5px solid var(--primary);
+            border-radius: 4px;
+            display: none;
+        }
+        .alert-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff5f5;
+            border-left: 5px solid var(--error);
+            color: var(--error);
+            font-size: 0.9em;
+            display: none;
+        }
+        .warning-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fffaf0;
+            border-left: 5px solid var(--warning);
+            color: var(--warning);
+            font-size: 0.9em;
+            display: none;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>🐾 VetMed SafeCalc</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('dosage')">Dosage</button>
+        <button class="tab-btn" onclick="showTab('dilution')">Dilution</button>
+        <button class="tab-btn" onclick="showTab('fluids')">Fluids / CRI</button>
+        <button class="tab-btn" onclick="showTab('metabolic')">RER & BSA</button>
+    </div>
+
+    <div id="dosage" class="calc-section active">
+        <h2>💊 Medication Dosage</h2>
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Species</label>
+                <select id="dose_species" onchange="checkWeightSafety('dose')">
+                    <option value="dog">Dog</option>
+                    <option value="cat">Cat</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="dose_weight" step="0.1" oninput="checkWeightSafety('dose')">
+            </div>
+        </div>
+        
+        <div id="dose_weight_alert" class="warning-box"></div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Dose Rate (mg/kg)</label>
+                <input type="number" id="dose_rate" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Concentration (mg/mL)</label>
+                <input type="number" id="dose_conc" step="0.1">
+            </div>
+        </div>
+
+        <button class="calculate" onclick="calcDosage()">Calculate Volume</button>
+        
+        <div id="dose_result" class="result-box"></div>
+        <div id="dose_vol_alert" class="alert-box"></div>
+    </div>
+
+    <div id="dilution" class="calc-section">
+        <h2>💧 Dilution (C1V1 = C2V2)</h2>
+        <p style="font-size: 0.9em; color: #666;">Leave the value you want to calculate empty.</p>
+        
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Start Conc (C1) %</label>
+                <input type="number" id="dil_c1">
+            </div>
+            <div class="input-group">
+                <label>Start Vol (V1) mL</label>
+                <input type="number" id="dil_v1">
+            </div>
+            <div class="input-group">
+                <label>Target Conc (C2) %</label>
+                <input type="number" id="dil_c2">
+            </div>
+            <div class="input-group">
+                <label>Target Vol (V2) mL</label>
+                <input type="number" id="dil_v2">
+            </div>
+        </div>
+        <button class="calculate" onclick="calcDilution()">Calculate Missing Value</button>
+        <div id="dil_result" class="result-box"></div>
+    </div>
+
+    <div id="fluids" class="calc-section">
+        <h2>🌊 Fluids & CRI</h2>
+        
+        <div class="input-group">
+            <label>Select Calculation Type:</label>
+            <select id="fluid_type" onchange="toggleFluidInputs()">
+                <option value="drip">IV Drip Rate (gtt/min)</option>
+                <option value="cri">CRI (Constant Rate Infusion)</option>
+            </select>
+        </div>
+
+        <div id="drip_inputs">
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Total Volume (mL)</label>
+                    <input type="number" id="drip_vol">
+                </div>
+                <div class="input-group">
+                    <label>Time (Hours)</label>
+                    <input type="number" id="drip_time">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Drop Factor (gtt/mL)</label>
+                <select id="drip_factor">
+                    <option value="10">10 (Macro)</option>
+                    <option value="15">15 (Standard)</option>
+                    <option value="20">20 (Standard)</option>
+                    <option value="60">60 (Micro)</option>
+                </select>
+            </div>
+            <button class="calculate" onclick="calcDrip()">Calculate Drip Rate</button>
+        </div>
+
+        <div id="cri_inputs" style="display:none;">
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="cri_weight">
+                </div>
+                <div class="input-group">
+                    <label>Dose (mcg/kg/min)</label>
+                    <input type="number" id="cri_dose">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Drug Conc (mg/mL)</label>
+                <input type="number" id="cri_conc">
+            </div>
+            <button class="calculate" onclick="calcCRI()">Calculate CRI Rate</button>
+        </div>
+
+        <div id="fluid_result" class="result-box"></div>
+    </div>
+
+    <div id="metabolic" class="calc-section">
+        <h2>⚡ RER & BSA</h2>
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Species</label>
+                <select id="meta_species">
+                    <option value="dog">Dog</option>
+                    <option value="cat">Cat</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="meta_weight">
+            </div>
+        </div>
+        <button class="calculate" onclick="calcMetabolic()">Calculate</button>
+        <div id="meta_result" class="result-box"></div>
+    </div>
+
+    <script>
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.calc-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleFluidInputs() {
+            const type = document.getElementById('fluid_type').value;
+            document.getElementById('drip_inputs').style.display = type === 'drip' ? 'block' : 'none';
+            document.getElementById('cri_inputs').style.display = type === 'cri' ? 'block' : 'none';
+            document.getElementById('fluid_result').style.display = 'none';
+        }
+
+        // --- SAFETY GUARDRAILS ---
+        function checkWeightSafety(prefix) {
+            const species = document.getElementById(prefix + '_species').value;
+            const weight = parseFloat(document.getElementById(prefix + '_weight').value);
+            const alertBox = document.getElementById(prefix + '_weight_alert');
+            
+            alertBox.style.display = 'none';
+            alertBox.innerHTML = '';
+
+            if (!weight) return;
+
+            // Guardrail Logic
+            let msg = "";
+            if (species === 'cat' && weight > 15) {
+                msg = "⚠️ <strong>Safety Check:</strong> 15kg+ is unusually heavy for a domestic cat. Please verify weight.";
+            } else if (species === 'dog' && weight > 110) {
+                msg = "⚠️ <strong>Safety Check:</strong> 110kg+ is extremely heavy. Please verify weight.";
+            }
+
+            if (msg) {
+                alertBox.innerHTML = msg;
+                alertBox.style.display = 'block';
+            }
+        }
+
+        // --- CALCULATORS ---
+        
+        function calcDosage() {
+            const w = parseFloat(document.getElementById('dose_weight').value);
+            const rate = parseFloat(document.getElementById('dose_rate').value);
+            const conc = parseFloat(document.getElementById('dose_conc').value);
+            const resBox = document.getElementById('dose_result');
+            const alertBox = document.getElementById('dose_vol_alert');
+
+            alertBox.style.display = 'none';
+
+            if (!w || !rate || !conc) {
+                resBox.style.display = 'block';
+                resBox.innerHTML = "Please fill all fields.";
+                return;
+            }
+
+            const doseMg = w * rate;
+            const vol = doseMg / conc;
+
+            resBox.style.display = 'block';
+            resBox.innerHTML = `
+                <strong>Total Dose:</strong> ${doseMg.toFixed(2)} mg<br>
+                <strong>Volume to Administer:</strong> <span style="font-size:1.4em; color:var(--primary)">${vol.toFixed(2)} mL</span>
+            `;
+
+            // High Volume Guardrail
+            if (vol > 20) {
+                alertBox.style.display = 'block';
+                alertBox.innerHTML = "⚠️ <strong>High Volume Alert:</strong> Calculated volume exceeds 20mL. Verify concentration and dose rate.";
+            }
+        }
+
+        function calcDilution() {
+            const c1 = parseFloat(document.getElementById('dil_c1').value);
+            const v1 = parseFloat(document.getElementById('dil_v1').value);
+            const c2 = parseFloat(document.getElementById('dil_c2').value);
+            const v2 = parseFloat(document.getElementById('dil_v2').value);
+            const resBox = document.getElementById('dil_result');
+
+            let res = 0;
+            let msg = "";
+
+            // Check how many inputs are empty (NaN)
+            const inputs = [c1, v1, c2, v2];
+            const emptyCount = inputs.filter(x => isNaN(x)).length;
+
+            if (emptyCount !== 1) {
+                resBox.style.display = 'block';
+                resBox.innerHTML = "Error: Please fill exactly 3 fields to find the 4th.";
+                return;
+            }
+
+            if (isNaN(v2)) { // Find V2
+                res = (c1 * v1) / c2;
+                msg = `Final Volume (V2) needed: <strong>${res.toFixed(2)} mL</strong>`;
+            } else if (isNaN(c2)) { // Find C2
+                res = (c1 * v1) / v2;
+                msg = `Final Concentration (C2): <strong>${res.toFixed(2)} %</strong>`;
+            } else if (isNaN(v1)) { // Find V1
+                res = (c2 * v2) / c1;
+                msg = `Stock Volume (V1) needed: <strong>${res.toFixed(2)} mL</strong><br>Add to ${(v2-res).toFixed(2)} mL of diluent.`;
+            } else if (isNaN(c1)) { // Find C1
+                res = (c2 * v2) / v1;
+                msg = `Required Stock Concentration (C1): <strong>${res.toFixed(2)} %</strong>`;
+            }
+
+            resBox.style.display = 'block';
+            resBox.innerHTML = msg;
+        }
+
+        function calcDrip() {
+            const vol = parseFloat(document.getElementById('drip_vol').value);
+            const hrs = parseFloat(document.getElementById('drip_time').value);
+            const factor = parseFloat(document.getElementById('drip_factor').value);
+            const resBox = document.getElementById('fluid_result');
+
+            if (!vol || !hrs) { resBox.style.display = 'block'; resBox.innerHTML = "Enter volume and time."; return; }
+
+            const totalMin = hrs * 60;
+            const gttMin = (vol * factor) / totalMin;
+            const secPerDrop = 60 / gttMin;
+
+            resBox.style.display = 'block';
+            resBox.innerHTML = `
+                <strong>Drip Rate:</strong> <span style="font-size:1.4em">${gttMin.toFixed(1)} gtt/min</span><br>
+                <small>Approx 1 drop every ${secPerDrop.toFixed(1)} seconds</small>
+            `;
+        }
+
+        function calcCRI() {
+            const w = parseFloat(document.getElementById('cri_weight').value);
+            const dose = parseFloat(document.getElementById('cri_dose').value); // mcg/kg/min
+            const conc = parseFloat(document.getElementById('cri_conc').value); // mg/mL
+            const resBox = document.getElementById('fluid_result');
+
+            if (!w || !dose || !conc) { resBox.style.display = 'block'; resBox.innerHTML = "Fill all fields."; return; }
+
+            // Convert dose from mcg/kg/min to mg/kg/hr
+            // (mcg * 60) / 1000 = mg/hr factor
+            const doseMgKgHr = (dose * 60) / 1000;
+            const totalMgHr = doseMgKgHr * w;
+            const mlHr = totalMgHr / conc;
+
+            resBox.style.display = 'block';
+            resBox.innerHTML = `
+                <strong>CRI Rate:</strong> <span style="font-size:1.4em">${mlHr.toFixed(2)} mL/hr</span><br>
+                <small>Total drug: ${totalMgHr.toFixed(2)} mg/hr</small>
+            `;
+        }
+
+        function calcMetabolic() {
+            const w = parseFloat(document.getElementById('meta_weight').value);
+            const species = document.getElementById('meta_species').value;
+            const resBox = document.getElementById('meta_result');
+
+            if (!w) return;
+
+            // RER = 70 * (weight ^ 0.75)
+            const rer = 70 * Math.pow(w, 0.75);
+            
+            // BSA
+            // Dog k=10.1, Cat k=10.0
+            const k = (species === 'dog') ? 10.1 : 10.0;
+            const weightG = w * 1000;
+            const bsa = (k * Math.pow(weightG, 2/3)) / 10000;
+
+            resBox.style.display = 'block';
+            resBox.innerHTML = `
+                <strong>RER (Resting Energy):</strong> ${rer.toFixed(0)} kcal/day<br>
+                <strong>Maintenance (1.2x):</strong> ${(rer*1.2).toFixed(0)} kcal/day<br>
+                <hr style="margin:10px 0; border:0; border-top:1px solid #ccc;">
+                <strong>BSA (Surface Area):</strong> ${bsa.toFixed(3)} m²
+            `;
+        }
+    </script>
+</body>
+</html>
