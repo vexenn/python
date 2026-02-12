@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinary ECG Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .nav-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .nav-card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .nav-card h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        
+        .nav-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .basic { background: #d4edda; color: #155724; }
+        .intermediate { background: #fff3cd; color: #856404; }
+        .advanced { background: #f8d7da; color: #721c24; }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🫀 Veterinary ECG Learning Platform</h1>
+            <p class="subtitle">Comprehensive ECG Education for Veterinary Technicians</p>
+        </header>
+        
+        <div class="nav-grid">
+            <a href="/education/basic" class="nav-card">
+                <div class="nav-card-icon">📚</div>
+                <h2>Basic ECG Concepts</h2>
+                <p>Learn the fundamentals of ECG interpretation, wave components, and normal values for different species.</p>
+                <span class="level-badge basic">BASIC</span>
+            </a>
+            
+            <a href="/education/intermediate" class="nav-card">
+                <div class="nav-card-icon">📊</div>
+                <h2>Intermediate Interpretation</h2>
+                <p>Systematic ECG analysis, common arrhythmias, and species-specific considerations.</p>
+                <span class="level-badge intermediate">INTERMEDIATE</span>
+            </a>
+            
+            <a href="/education/advanced" class="nav-card">
+                <div class="nav-card-icon">🔬</div>
+                <h2>Advanced Topics</h2>
+                <p>Chamber enlargement, electrolyte abnormalities, conduction blocks, and emergency rhythms.</p>
+                <span class="level-badge advanced">ADVANCED</span>
+            </a>
+            
+            <a href="/waveforms" class="nav-card">
+                <div class="nav-card-icon">📈</div>
+                <h2>ECG Waveform Library</h2>
+                <p>Browse and study all types of ECG patterns organized by category and species.</p>
+            </a>
+            
+            <a href="/waveform-details" class="nav-card">
+                <div class="nav-card-icon">🔍</div>
+                <h2>Wave Component Details</h2>
+                <p>Detailed information about P waves, QRS complexes, T waves, and all ECG intervals.</p>
+            </a>
+            
+            <a href="/quiz" class="nav-card">
+                <div class="nav-card-icon">🎯</div>
+                <h2>Interactive Quiz</h2>
+                <p>Test your knowledge with randomly generated ECG patterns and immediate feedback.</p>
+            </a>
+        </div>
+        
+        <footer>
+            <p>© 2024 Veterinary ECG Learning Platform | Educational Tool for Veterinary Technicians</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Always consult with a licensed veterinarian for clinical interpretation</p>
+        </footer>
+    </div>
+</body>
+</html>

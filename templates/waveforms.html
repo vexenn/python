@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECG Waveform Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+        }
+        
+        .category-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .waveform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .waveform-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .waveform-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .waveform-card h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .species-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .modal-title {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .ecg-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">← Back to Home</a>
+        
+        <header>
+            <h1>📈 ECG Waveform Library</h1>
+            <p style="color: #666; margin-top: 10px;">Click on any waveform to view its ECG pattern</p>
+        </header>
+        
+        {% for category, patterns in categories.items() %}
+        <div class="category-section">
+            <h2 class="category-title">{{ category }}</h2>
+            <div class="waveform-grid">
+                {% for pattern in patterns %}
+                <div class="waveform-card" onclick="loadECG('{{ pattern.key }}')">
+                    <h3>{{ pattern.name }}</h3>
+                    <span class="species-badge">{{ pattern.species }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div id="ecgModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title" id="modalTitle">Loading...</h2>
+            <div id="modalBody" class="loading">Loading ECG pattern...</div>
+        </div>
+    </div>
+    
+    <script>
+        function loadECG(patternKey) {
+            const modal = document.getElementById('ecgModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modal.style.display = 'block';
+            modalTitle.textContent = 'Loading...';
+            modalBody.innerHTML = '<div class="loading">Loading ECG pattern...</div>';
+            
+            fetch(`/api/ecg/${patternKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        modalTitle.textContent = data.name;
+                        modalBody.innerHTML = `
+                            <p><strong>Category:</strong> ${data.category}</p>
+                            <p><strong>Species:</strong> ${data.species}</p>
+                            <img src="data:image/png;base64,${data.image}" class="ecg-image" alt="${data.name}">
+                        `;
+                    } else {
+                        modalBody.innerHTML = '<p style="color: red;">Error loading ECG pattern</p>';
+                    }
+                })
+                .catch(error => {
+                    modalBody.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+                });
+        }
+        
+        function closeModal() {
+            document.getElementById('ecgModal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('ecgModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
