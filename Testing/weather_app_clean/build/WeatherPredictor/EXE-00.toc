@@ -1,8 +1,8 @@
 ('C:\\Users\\HP\\python\\Testing\\weather_app_clean\\dist\\WeatherPredictor.exe',
+ True,
  False,
  False,
- False,
- 'c:\\Users\\HP\\python\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\images\\icon-windowed.ico',
+ 'c:\\Users\\HP\\python\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\images\\icon-console.ico',
  None,
  False,
  False,
@@ -252,9 +252,9 @@
  [],
  False,
  False,
- 1770892809,
- [('runw.exe',
-   'c:\\Users\\HP\\python\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
+ 1770915798,
+ [('run.exe',
+   'c:\\Users\\HP\\python\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],
  'C:\\Program '
  'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\python311.dll')
