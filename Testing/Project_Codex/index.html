@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A professional guide to using AI agents in vibe coding workflows.">
+  <title>AI Vibe Coding Agents | Justin Davis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header" data-module="header">
+    <div class="container nav-wrap">
+      <p class="brand">Justin Davis</p>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="#levels">Learning Levels</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#database">Data Layer</a></li>
+          <li><a href="#next">Next Steps</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" data-module="main">
+    <section class="hero" data-module="hero">
+      <div class="container">
+        <p class="eyebrow">California-based software developer</p>
+        <h1>AI Agents for Vibe Coding</h1>
+        <p class="lead">
+          A practical framework for building software faster with AI agents, from basic prompting to advanced multi-agent orchestration.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#levels">Start Learning</a>
+          <a class="btn btn-secondary" href="#database">View Backend Strategy</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="levels" class="section" data-module="learning-levels">
+      <div class="container">
+        <h2>Three Levels of Agent Utilization</h2>
+        <p class="section-intro">Move from quick wins to production-grade systems.</p>
+
+        <div class="card-grid" id="level-cards">
+          <article class="card level-basic" data-level="basic">
+            <h3>Basic</h3>
+            <p>Use one agent for scoped tasks: code snippets, bug explanation, and fast refactors.</p>
+            <ul>
+              <li>Single-task prompts with clear constraints</li>
+              <li>Human-in-the-loop review before merge</li>
+              <li>Fast iteration for small features</li>
+            </ul>
+          </article>
+
+          <article class="card level-intermediate" data-level="intermediate">
+            <h3>Intermediate</h3>
+            <p>Introduce workflow patterns where agents draft, test, and verify in sequence.</p>
+            <ul>
+              <li>Prompt templates and reusable checklists</li>
+              <li>Agent-assisted test generation</li>
+              <li>Automated quality gates in CI</li>
+            </ul>
+          </article>
+
+          <article class="card level-advanced" data-level="advanced">
+            <h3>Advanced</h3>
+            <p>Coordinate specialized agents for architecture, implementation, and operational monitoring.</p>
+            <ul>
+              <li>Role-based multi-agent collaboration</li>
+              <li>Retrieval-augmented coding context</li>
+              <li>Policy and security guardrails by default</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section alt" data-module="architecture">
+      <div class="container">
+        <h2>Recommended Architecture</h2>
+        <div class="split">
+          <article>
+            <h3>Frontend</h3>
+            <p>Modular HTML sections with clear IDs and data attributes for future componentization.</p>
+          </article>
+          <article>
+            <h3>Backend</h3>
+            <p>Python Flask API with SQLite for persistent agent patterns, playbooks, and outcomes.</p>
+          </article>
+          <article>
+            <h3>Operations</h3>
+            <p>Versioned prompt assets, telemetry, and test-first workflows for reliable releases.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="database" class="section" data-module="database-plan">
+      <div class="container">
+        <h2>Python Database Integration</h2>
+        <p>
+          The Flask app exposes APIs backed by SQLite so you can store and retrieve learning modules by level.
+          The content list below is loaded dynamically from <code>/api/levels</code>.
+        </p>
+        <div id="dynamic-levels" class="dynamic-levels" aria-live="polite">
+          <p>Loading database-backed modules...</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="next" class="section cta" data-module="next-steps">
+      <div class="container">
+        <h2>Production-Ready Next Steps</h2>
+        <ol>
+          <li>Add authentication for team-specific agent workflows.</li>
+          <li>Track prompt and response metrics for quality and cost.</li>
+          <li>Introduce role-based agents for planning, coding, and review.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-module="footer">
+    <div class="container">
+      <p>Built by Justin Davis in California. Designed for practical AI vibe coding systems.</p>
+    </div>
+  </footer>
+
+  <template id="module-template">
+    <article class="module-item">
+      <h3 class="module-title"></h3>
+      <p class="module-summary"></p>
+    </article>
+  </template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
