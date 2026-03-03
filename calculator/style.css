@@ -1,0 +1,67 @@
+:root {
+    --bg-color: #c54747;
+    --card-bg: #c7adad;
+    --text-color: #000000;
+    --accent-color: #4d9152;
+    --btn-bg: #bada83;
+    --btn-hover: #323ea8;
+}
+
+body {
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-template-rows: minmax(100px, auto) repeat(5, 80px);
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.output {
+    grid-column: 1 / -1;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: 15px;
+    word-wrap: break-word;
+    word-break: break-all;
+    border-radius: 8px;
+}
+
+.current-operand {
+    color: var(--text-color);
+    font-size: 2.5rem;
+}
+
+.previous-operand {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+}
+
+button {
+    cursor: pointer;
+    font-size: 1.5rem;
+    border: none;
+    outline: none;
+    background-color: var(--btn-bg);
+    color: var(--text-color);
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+button:hover { background-color: var(--btn-hover); }
+button[data-operation], button[data-equals] { color: var(--accent-color); }
+.span-two { grid-column: span 2; }

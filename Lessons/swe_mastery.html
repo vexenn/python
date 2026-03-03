@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWE: Prompt Engineering Mastery v20</title>
+    <style>
+        :root {
+            --primary: #0f172a; --secondary: #38bdf8; --accent: #f43f5e;
+            --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b;
+            --success: #10b981; --border: #334155; --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+        body { font-family: 'JetBrains Mono', 'Inter', monospace; background: var(--bg); margin: 0; color: var(--text); line-height: 1.6; }
+        
+        .nav-tabs { display: flex; background: var(--primary); justify-content: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
+        .tab-btn { padding: 18px 24px; color: #94a3b8; border: none; background: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: 0.3s ease; }
+        .tab-btn:hover { color: var(--secondary); background: rgba(56, 189, 248, 0.05); }
+        .tab-btn.active { color: white; border-bottom: 3px solid var(--secondary); }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .content-section { display: none; animation: fadeIn 0.4s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 2.2rem; text-align: center; color: var(--secondary); letter-spacing: -0.05em; }
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { background: #1e293b; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--secondary); }
+        .card-body { padding: 1.5rem; }
+
+        /* Flashcards */
+        .flash-center { display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+        .flash-card { width: 100%; max-width: 650px; height: 350px; perspective: 1200px; cursor: pointer; }
+        .flash-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .flash-card.flipped .flash-inner { transform: rotateY(180deg); }
+        .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 2.5rem; text-align: center; font-size: 1.4rem; font-weight: 600; box-sizing: border-box; border: 1px solid var(--border); }
+        .front { background: var(--primary); color: var(--secondary); }
+        .back { background: var(--card-bg); color: var(--text); transform: rotateY(180deg); border-left: 8px solid var(--secondary); }
+
+        /* Drag & Drop */
+        .drag-layout { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
+        .sticky-pool { position: sticky; top: 100px; background: var(--primary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
+        .draggable { background: var(--card-bg); padding: 0.8rem; border-radius: 6px; margin-bottom: 0.8rem; cursor: grab; font-size: 0.8rem; border: 1px solid var(--border); transition: 0.2s; }
+        .draggable:hover { border-color: var(--secondary); }
+        .drop-target { min-height: 50px; border: 2px dashed var(--border); border-radius: 8px; margin-top: 10px; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; padding: 10px; font-weight: 700; font-size: 0.85rem; color: #94a3b8; }
+        .drop-target.correct { background: var(--success) !important; color: white; border: none; }
+
+        /* Quiz UI */
+        #timer { font-size: 3.5rem; font-weight: 900; text-align: center; color: var(--accent); margin-bottom: 1rem; }
+        .opt-btn { width: 100%; padding: 1rem; margin: 0.5rem 0; border: 1px solid var(--border); border-radius: 8px; background: var(--primary); text-align: left; cursor: pointer; color: var(--text); transition: 0.2s; }
+        .opt-btn:hover { border-color: var(--secondary); }
+        .opt-btn.correct-choice { background: var(--success) !important; border-color: var(--success); }
+        .opt-btn.wrong-choice { background: var(--accent) !important; border-color: var(--accent); }
+        .opt-btn.selected { border: 2px solid var(--secondary); background: rgba(56, 189, 248, 0.1); }
+        
+        .score-box { background: var(--secondary); color: var(--primary); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; display: none; font-weight: 800; }
+        .btn-main { background: var(--secondary); color: var(--primary); border: none; border-radius: 8px; padding: 1.2rem 2.5rem; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<nav class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('guide')">Documentation</button>
+    <button class="tab-btn" onclick="showTab('flash')">Recall Cards</button>
+    <button class="tab-btn" onclick="showTab('drag')">Concept Match</button>
+    <button class="tab-btn" onclick="showTab('quiz')">Certification Exam</button>
+</nav>
+
+<div class="container">
+    <section id="guide" class="content-section active">
+        <h1>Prompt Engineering Documentation</h1>
+        <div class="card">
+            <div class="card-header">Core Prompting Architecture</div>
+            <div class="card-body">
+                <p><strong>Zero-shot:</strong> Providing instructions without any examples.</p>
+                <p><strong>Few-shot:</strong> Guiding behavior via specific examples provided in the prompt.</p>
+                <p><strong>Role Prompting:</strong> Defining the AI's behavior, tone, and expertise level.</p>
+                <p><strong>Chain-of-Thought:</strong> Forcing multi-step reasoning to improve output quality.</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Safety & Integration</div>
+            <div class="card-body">
+                <p><strong>Guardrails:</strong> Constraints designed to maintain safety and reduce harmful outputs.</p>
+                <p><strong>Structured Outputs (JSON):</strong> Crucial for parsing, automation, and system integration.</p>
+                <p><strong>State Management:</strong> Tracking conversation progress for multi-turn interactions.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="flash" class="content-section">
+        <div class="flash-center">
+            <div class="flash-card" onclick="this.classList.toggle('flipped')">
+                <div class="flash-inner"><div class="face front" id="fc-front"></div><div class="face back" id="fc-back"></div></div>
+            </div>
+            <div style="display:flex; gap: 20px;">
+                <button class="tab-btn" onclick="changeFC(-1)">← Prev</button>
+                <span id="fc-count" style="font-weight: 800; padding-top: 15px;"></span>
+                <button class="tab-btn" onclick="changeFC(1)">Next →</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="drag" class="content-section">
+        <div class="drag-layout"><div id="drop-grid"></div><div class="sticky-pool" id="drag-pool"></div></div>
+    </section>
+
+    <section id="quiz" class="content-section">
+        <div id="score-box" class="score-box"></div>
+        <div id="timer">360</div>
+        <div id="quiz-pool"></div>
+        <div style="text-align:center;"><button id="exam-btn" class="btn-main" onclick="startQuiz()">Begin Certification Exam</button></div>
+    </section>
+</div>
+
+<script>
+    // 50 Question Integrated Dataset
+    const rawData = [
+        {q: "Zero-shot prompting means:", a: "No examples provided"},
+        {q: "Few-shot prompting primarily improves:", a: "Consistency"},
+        {q: "Role prompting defines:", a: "AI behavior"},
+        {q: "Constraints help to:", a: "Limit output intentionally"},
+        {q: "Guardrails are used for:", a: "Safety"},
+        {q: "Prompt chaining is useful when:", a: "Task is multi-step"},
+        {q: "Structured outputs are helpful for:", a: "Automation, Parsing, and Integration"},
+        {q: "Ambiguity occurs when:", a: "Instructions are unclear"},
+        {q: "State management tracks:", a: "Conversation progress"},
+        {q: "Iterative prompting means:", a: "Refining prompts repeatedly"},
+        {q: "Few-shot examples guide model behavior.", a: "True"},
+        {q: "Constraints improve precision.", a: "True"},
+        {q: "Guardrails reduce harmful outputs.", a: "True"},
+        {q: "Context improves relevance.", a: "True"},
+        {q: "Role prompts improve domain accuracy.", a: "True"},
+        {q: "JSON outputs help automation.", a: "True"},
+        {q: "Clarifying questions reduce ambiguity.", a: "True"},
+        {q: "Prompt templates improve scalability.", a: "True"},
+        {q: "Multi-step reasoning improves quality.", a: "True"},
+        {q: "Feedback loops improve prompts.", a: "True"},
+        {q: "Hallucinations reduce with clarity.", a: "True"},
+        {q: "Structured prompts improve consistency.", a: "True"},
+        {q: "State tracking improves user experience.", a: "True"},
+        {q: "Examples improve tone control.", a: "True"},
+        {q: "Iteration improves reliability.", a: "True"},
+        {q: "Instructions should be explicit.", a: "True"},
+        {q: "Prompt chaining reduces complexity.", a: "True"},
+        {q: "Output schemas improve integration.", a: "True"},
+        {q: "AI cannot handle ambiguity.", a: "False"},
+        {q: "Prompt engineering is iterative.", a: "True"},
+        {q: "Best technique for tone imitation:", a: "Few-shot"},
+        {q: "If user input is unclear, AI should:", a: "Clarify"},
+        {q: "Guardrails belong to which category?", a: "Constraints"},
+        {q: "Prompt templates are useful for:", a: "Scaling systems"},
+        {q: "Multi-turn conversations require:", a: "State memory"},
+        {q: "Constraints control which aspect?", a: "Output behavior"},
+        {q: "Role prompting mainly affects:", a: "Tone and expertise"},
+        {q: "Structured prompts reduce:", a: "Ambiguity"},
+        {q: "Clarification questions help when:", a: "Input is vague"},
+        {q: "Prompt evaluation helps to:", a: "Measure quality"},
+        {q: "Chain-of-thought prompting improves:", a: "Reasoning"},
+        {q: "Business prompts require:", a: "Context"},
+        {q: "Few-shot prompting uses:", a: "Examples"},
+        {q: "Zero-shot prompting uses:", a: "No examples"},
+        {q: "Guardrails are important for:", a: "Safety"},
+        {q: "State management is critical for:", a: "Conversational systems"},
+        {q: "Prompt templates improve:", a: "Reusability"},
+        {q: "Constraints improve:", a: "Accuracy"},
+        {q: "Clear instructions reduce:", a: "Hallucinations"},
+        {q: "Prompt engineering focuses on:", a: "Designing inputs"}
+    ];
+
+    const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+    let currentFC = 0;
+    let quizInterval = null;
+    let quizActive = false;
+
+    function showTab(id) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function updateFC() {
+        document.getElementById('fc-front').innerText = rawData[currentFC].q;
+        document.getElementById('fc-back').innerText = rawData[currentFC].a;
+        document.getElementById('fc-count').innerText = `${currentFC + 1} / 50`;
+        document.querySelector('.flash-card').classList.remove('flipped');
+    }
+    const changeFC = (dir) => { currentFC = (currentFC + dir + 50) % 50; updateFC(); };
+    updateFC();
+
+    function initDrag() {
+        const pool = document.getElementById('drag-pool');
+        const grid = document.getElementById('drop-grid');
+        pool.innerHTML = ''; grid.innerHTML = '';
+        const subset = shuffle(rawData).slice(0, 20);
+        const answers = shuffle(subset);
+
+        answers.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'draggable'; el.draggable = true; el.innerText = item.a;
+            el.id = `dr-${Math.random()}`; el.dataset.val = item.a;
+            pool.appendChild(el);
+            el.ondragstart = (e) => e.dataTransfer.setData("text", e.target.id);
+        });
+
+        subset.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card'; card.style.padding = '1rem';
+            card.innerHTML = `<div style="font-size:0.85rem">Target: <strong>${item.q}</strong></div> <div class="drop-target" data-ans="${item.a}">Await input...</div>`;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.drop-target').forEach(t => {
+            t.ondragover = e => e.preventDefault();
+            t.ondrop = e => {
+                const id = e.dataTransfer.getData("text");
+                const dropped = document.getElementById(id);
+                if (dropped && dropped.dataset.val === t.dataset.ans) {
+                    t.innerText = dropped.dataset.val; t.classList.add('correct'); dropped.style.display = 'none';
+                }
+            };
+        });
+    }
+    initDrag();
+
+    function startQuiz() {
+        if (quizInterval) clearInterval(quizInterval);
+        quizActive = true;
+        const pool = document.getElementById('quiz-pool');
+        const scoreBox = document.getElementById('score-box');
+        const actionBtn = document.getElementById('exam-btn');
+        pool.innerHTML = ''; scoreBox.style.display = 'none';
+        
+        let t = 360;
+        document.getElementById('timer').innerText = t;
+        quizInterval = setInterval(() => {
+            t--; document.getElementById('timer').innerText = t;
+            if(t <= 0) submitExam();
+        }, 1000);
+
+        shuffle(rawData).forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'card quiz-question'; card.style.padding = '1.5rem';
+            card.dataset.correct = item.a;
+            card.innerHTML = `<p><strong>${i+1}. ${item.q}</strong></p>`;
+            
+            let options = [item.a];
+            while(options.length < 4) {
+                let r = rawData[Math.floor(Math.random()*50)].a;
+                if(!options.includes(r)) options.push(r);
+            }
+            
+            shuffle(options).forEach(o => {
+                const b = document.createElement('button');
+                b.className = 'opt-btn'; b.innerText = o;
+                b.onclick = function() {
+                    if(!quizActive) return;
+                    card.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                };
+                card.appendChild(b);
+            });
+            pool.appendChild(card);
+        });
+        actionBtn.innerText = "Submit Certification";
+        actionBtn.onclick = submitExam;
+    }
+
+    function submitExam() {
+        clearInterval(quizInterval);
+        quizActive = false;
+        let score = 0;
+        const questions = document.querySelectorAll('.quiz-question');
+        questions.forEach(card => {
+            const selected = card.querySelector('.opt-btn.selected');
+            const correctVal = card.dataset.correct;
+            card.querySelectorAll('.opt-btn').forEach(btn => {
+                if(btn.innerText === correctVal) btn.classList.add('correct-choice');
+                if(btn.classList.contains('selected') && btn.innerText !== correctVal) btn.classList.add('wrong-choice');
+            });
+            if(selected && selected.innerText === correctVal) score++;
+        });
+        const scoreBox = document.getElementById('score-box');
+        scoreBox.style.display = 'block';
+        scoreBox.innerText = `Certification Result: ${score} / 50 (${Math.round(score/50*100)}%)`;
+        window.scrollTo(0,0);
+        document.getElementById('exam-btn').innerText = "Retry Certification";
+        document.getElementById('exam-btn').onclick = startQuiz;
+    }
+</script>
+</body>
+</html>
