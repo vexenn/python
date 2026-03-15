@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 40px;">
+    <h1 style="color: var(--text-main);">Quiz Results</h1>
+    <div class="card" style="display: inline-block; padding: 20px 40px; border-radius: 15px;">
+        <h2 style="margin: 0; font-size: 2.5em; color: var(--text-main);">{{ score }} / {{ total }}</h2>
+        <p style="margin: 5px 0 0 0; font-weight: bold; color: var(--text-muted); font-size: 1.2em;">
+            ({{ ((score / total) * 100) | round(1) }}%)
+        </p>
+    </div>
+</div>
+
+<div id="resultsList">
+    {% for result in results %}
+        <div class="card" style="margin-bottom: 20px; border-left: 5px solid {{ 'var(--success)' if result.is_correct else 'var(--danger)' }};">
+            
+            <h3 style="margin-top: 0; color: var(--text-main);">
+                Q{{ loop.index }}: {{ result.heading.split(':', 1)[1] if ':' in result.heading else result.heading }}
+            </h3>
+            
+            <p style="color: var(--text-main);"><strong>Your Answer:</strong> 
+                <span style="font-weight: bold; color: {{ 'var(--success)' if result.is_correct else 'var(--danger)' }};">
+                    {{ result.user_answer if result.user_answer else 'Skipped' }}
+                </span>
+            </p>
+            
+            {% if not result.is_correct %}
+                <p style="color: var(--text-main);"><strong>Correct Answer:</strong> 
+                    <span style="font-weight: bold; color: var(--success);">{{ result.correct_answer }}</span>
+                </p>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+<div style="text-align: center; margin-top: 40px; padding-bottom: 50px;">
+    <a href="{{ url_for('topic_detail', topic_id=topic.id) }}" class="btn btn-primary" style="text-decoration: none; margin-right: 15px; padding: 12px 25px;">
+       Try Again
+    </a>
+    <a href="/" style="padding: 12px 25px; color: var(--primary); text-decoration: none; font-weight: bold; transition: color 0.2s;">
+       Return to Modules
+    </a>
+</div>
+{% endblock %}

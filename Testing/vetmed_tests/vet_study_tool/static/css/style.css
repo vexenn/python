@@ -1,0 +1,225 @@
+:root {
+    --primary-blue: #3498db;
+    --hover-blue: #2980b9;
+    --dark-slate: #2c3e50;
+    --medical-white: #ffffff;
+    --warning-red: #e74c3c;
+    --success-green: #27ae60;
+    --light-bg: #f4f7f6;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    background-color: var(--light-bg);
+    color: var(--dark-slate);
+    line-height: 1.6;
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background: var(--dark-slate);
+    color: white;
+    padding: 30px 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 10;
+    position: sticky; /* Keeps sidebar visible while scrolling */
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    color: var(--primary-blue);
+    text-align: center;
+}
+
+.sidebar ul { list-style: none; padding: 0; }
+
+.sidebar li { 
+    padding: 12px 15px; 
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer; 
+    transition: var(--transition);
+    font-weight: 500;
+    color: rgba(255,255,255,0.8);
+}
+
+.sidebar li:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--medical-white);
+    padding-left: 20px;
+}
+
+/* Updated Active State for JS Integration */
+.sidebar li.active {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* Content Area */
+.content { 
+    flex-grow: 1; 
+    padding: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Roadmap Grid refinement */
+.roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    transition: var(--transition);
+    border: 1px solid #edf2f7;
+}
+
+/* Form Elements */
+.input-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    max-width: 100%; 
+}
+
+label { font-weight: 600; font-size: 0.85rem; color: #4a5568; }
+
+input { 
+    padding: 14px; 
+    border: 2px solid #edf2f7; 
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: #fff;
+}
+
+button {
+    background: var(--primary-blue);
+    color: white;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 0 #2980b9;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2980b9;
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+/* Roadmap/Study Guide Hover */
+.guide-link { text-decoration: none; color: inherit; }
+
+.guide-link:hover .quiz-card {
+    border-color: var(--primary-blue);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+}
+
+/* Medical Styling */
+.calculation-output {
+    background: #f1f5f9;
+    border-left: 6px solid var(--primary-blue);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.quiz-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 5px solid var(--primary-blue);
+    border-top: 1px solid #edf2f7;
+    border-right: 1px solid #edf2f7;
+    border-bottom: 1px solid #edf2f7;
+    transition: var(--transition);
+}
+
+.week-tag {
+    background: var(--dark-slate);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+}
+
+/* Timer Styling */
+#exam-timer {
+    font-variant-numeric: tabular-nums; /* Prevents timer text from jumping */
+    letter-spacing: 1px;
+}
+
+/* Simulator Log Styling */
+.log-table {
+    margin-top: 25px;
+    background: #0f172a;
+    color: #38bdf8;
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.85rem;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    border: 1px solid #334155;
+}
+
+.log-entry-row {
+    border-bottom: 1px solid #1e293b;
+    padding: 10px 0;
+    animation: fadeIn 0.4s ease-out; /* Makes new logs pop in smoothly */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.hidden { display: none; }
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .app-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; padding: 20px; }
+    .sidebar h2 { margin-bottom: 15px; }
+    .sidebar ul { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sidebar li { font-size: 0.8rem; margin-bottom: 0; text-align: center; }
+    .content { padding: 20px; }
+}

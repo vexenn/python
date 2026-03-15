@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vet Tech Study Guide</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#3498db">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+                    .then(reg => console.log('Service Worker Registered!', reg))
+                    .catch(err => console.error('Service Worker Registration Failed!', err));
+            });
+        }
+    </script>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <style>
+        /* --- PRINT STYLES (Preserved from your original) --- */
+        @media print {
+            /* Hide UI elements that shouldn't be on a paper guide */
+            nav, button, .search-container, #toggleQuiz, #toggleBlur, .back-link, .theme-toggle {
+                display: none !important;
+            }
+
+            /* Reset layout for paper */
+            main {
+                padding: 0;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            /* Ensure images are high quality and don't break across pages */
+            img {
+                max-width: 100%;
+                height: auto;
+                page-break-inside: avoid;
+                border: 1px solid #eee;
+            }
+
+            /* Force black text for better printing */
+            body {
+                color: #000 !important;
+                background: #fff !important;
+            }
+
+            /* Add a little space between printed sections */
+            section, .quiz-section, .card-container {
+                page-break-inside: avoid;
+                margin-bottom: 30px;
+                border-left: 2px solid #ccc !important;
+            }
+
+            /* Ensure Quiz Mode doesn't print as blurred */
+            .quiz-blur, .answer-text {
+                filter: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: var(--shadow); transition: all 0.3s ease;">
+        <div style="display: flex; gap: 20px;">
+            <a href="{{ url_for('index') }}" style="color: var(--primary); text-decoration: none; font-weight: bold; font-size: 1.2em;">Home</a>
+            <a href="{{ url_for('fluid_calculator') }}" style="color: var(--text-muted); text-decoration: none; font-weight: bold; font-size: 1.2em;">Calculators</a>
+        </div>
+        
+        <button id="themeToggle" class="theme-toggle">
+            <span id="themeIcon">🌙</span> Dark Mode
+        </button>
+    </nav>
+
+    <main style="padding: 0 20px; max-width: 1000px; margin: auto;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlElement = document.documentElement;
+
+        // Set initial text based on the script we ran in the <head>
+        if (htmlElement.getAttribute('data-theme') === 'dark') {
+            themeIcon.textContent = '☀️';
+            themeToggle.lastChild.nodeValue = ' Light Mode';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Save preference
+            
+            // Update button text/icon
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            themeToggle.lastChild.nodeValue = newTheme === 'dark' ? ' Light Mode' : ' Dark Mode';
+        });
+    </script>
+</body>
+</html>

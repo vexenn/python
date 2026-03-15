@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1>{{ topic.title }}</h1>
+        <p>Category: <em>{{ topic.category }}</em> - Pattern Recognition Guide</p>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+        <label style="font-weight: bold; margin-right: 10px; color: #2c3e50;">🧪 Lab Practical Mode:</label>
+        <button id="toggleBlur" onclick="toggleStudyMode()" 
+                style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            OFF
+        </button>
+    </div>
+</div>
+
+<style>
+    /* This class will be toggled by JavaScript */
+    .study-mode .answer-text {
+        filter: blur(6px);
+        transition: filter 0.3s;
+    }
+
+    /* Reveal the answer when hovering over the specific card */
+    .study-mode .card-container:hover .answer-text {
+        filter: blur(0);
+    }
+
+    .card-container {
+        background: white; 
+        border: 1px solid #ddd; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+        transition: transform 0.2s; 
+        cursor: pointer;
+    }
+</style>
+
+<div id="rhythmGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+    {% for sub in topic.sub_sections %}
+    <div class="card-container" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        
+        {% if sub.image_filename %}
+        <div style="background: #fdf2f2; border-bottom: 1px solid #eee; padding: 10px;">
+            <img src="{{ url_for('static', filename='images/diagrams/' + sub.image_filename) }}" 
+                 alt="ECG Strip" 
+                 style="width: 100%; height: auto; display: block;">
+        </div>
+        {% endif %}
+
+        <div style="padding: 20px;" class="answer-text">
+            <h3 style="margin-top: 0; color: #2c3e50;">{{ sub.heading }}</h3>
+            <p style="font-size: 0.95em; line-height: 1.5; color: #7f8c8d;">{{ sub.content }}</p>
+            
+            {% if "Lethal" in sub.heading or "Tachycardia" in sub.heading or "V-Fib" in sub.heading or "V-Tach" in sub.heading %}
+                <span style="display: inline-block; background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;">
+                    ⚠️ NURSING EMERGENCY
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function toggleStudyMode() {
+        const grid = document.getElementById('rhythmGrid');
+        const btn = document.getElementById('toggleBlur');
+        
+        // Toggle the CSS class on the grid container
+        grid.classList.toggle('study-mode');
+        
+        // Update button text and color
+        if (grid.classList.contains('study-mode')) {
+            btn.innerText = "ON";
+            btn.style.background = "#e74c3c"; // Red when active
+        } else {
+            btn.innerText = "OFF";
+            btn.style.background = "#3498db"; // Blue when inactive
+        }
+    }
+</script>
+
+<div style="margin-top: 40px;">
+    <a href="/" style="color: #3498db; text-decoration: none; font-weight: bold;">← Back to All Modules</a>
+</div>
+{% endblock %}

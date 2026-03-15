@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: auto;">
+    <h1>Clinical Calculators</h1>
+    <p style="color: var(--text-muted);">Essential nursing math for fluid therapy, nutritional support, and emergency dosing.</p>
+
+    <div style="display: flex; gap: 5px; margin-bottom: -1px;">
+        <button onclick="showTab('fluids')" id="btn-fluids" 
+                style="padding: 12px 25px; cursor: pointer; border: 1px solid var(--border-color); border-bottom: none; 
+                       background: {{ 'var(--primary)' if active_tab == 'fluids' else 'var(--bg-main)' }}; 
+                       color: {{ 'white' if active_tab == 'fluids' else 'var(--text-muted)' }}; 
+                       border-radius: 8px 8px 0 0; font-weight: bold; transition: 0.3s;">
+            💧 Fluid Therapy
+        </button>
+        <button onclick="showTab('rer')" id="btn-rer" 
+                style="padding: 12px 25px; cursor: pointer; border: 1px solid var(--border-color); border-bottom: none; 
+                       background: {{ 'var(--warning)' if active_tab == 'rer' else 'var(--bg-main)' }}; 
+                       color: {{ 'white' if active_tab == 'rer' else 'var(--text-muted)' }}; 
+                       border-radius: 8px 8px 0 0; font-weight: bold; transition: 0.3s;">
+            🦴 Nutrition (RER)
+        </button>
+        <button onclick="showTab('drugs')" id="btn-drugs" 
+                style="padding: 12px 25px; cursor: pointer; border: 1px solid var(--border-color); border-bottom: none; 
+                       background: {{ 'var(--danger)' if active_tab == 'drugs' else 'var(--bg-main)' }}; 
+                       color: {{ 'white' if active_tab == 'drugs' else 'var(--text-muted)' }}; 
+                       border-radius: 8px 8px 0 0; font-weight: bold; transition: 0.3s;">
+            🚨 Emergency Drugs
+        </button>
+    </div>
+
+    <div class="calculator-box" style="border-radius: 0 8px 8px 8px;">
+        
+        <div id="fluids-calc" style="display: {{ 'block' if active_tab == 'fluids' else 'none' }};">
+            <h3 style="color: var(--primary); margin-top: 0;">24-Hour Replacement Fluid Requirement</h3>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px;">
+                <em>Formula: Maintenance (55ml/kg/day) + % Deficit + Ongoing Losses</em>
+            </p>
+            
+            <form method="POST">
+                <input type="hidden" name="calc_type" value="fluids">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="font-weight: bold;">Patient Weight (lb):</label><br>
+                        <input type="number" step="0.1" min="0.1" max="400" name="weight" required style="margin-top: 5px;">
+                    </div>
+                    <div>
+                        <label style="font-weight: bold;">Dehydration %:</label><br>
+                        <input type="number" step="0.1" min="0" max="20" name="dehydration" placeholder="e.g. 5" required style="margin-top: 5px;">
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: bold;">Anticipated Ongoing Losses (ml):</label><br>
+                    <input type="number" step="0.1" min="0" name="losses" value="0" required style="margin-top: 5px;">
+                </div>
+                <button type="submit" class="btn" style="background-color: var(--primary); color: white; width: 100%; margin-top: 20px;">
+                    Calculate Fluid Plan
+                </button>
+            </form>
+
+            {% if result %}
+                <div style="margin-top: 25px; padding: 20px; background: var(--bg-main); border-left: 5px solid var(--primary); border-radius: 4px;">
+                    <h4 style="margin-top: 0;">Patient Assessment ({{ result.weight_kg }} kg)</h4>
+                    <p>• Maintenance Requirement: <strong>{{ result.maintenance }} ml/day</strong></p>
+                    <p>• Replacement Deficit: <strong>{{ result.deficit }} ml</strong></p>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color);">
+                    <p style="font-size: 1.3em; margin-bottom: 5px;"><strong>Total 24h Volume: {{ result.total }} ml</strong></p>
+                    <p style="font-size: 1.4em; color: var(--success); margin: 0;"><strong>Hourly IV Rate: {{ result.hourly }} ml/hr</strong></p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="rer-calc" style="display: {{ 'block' if active_tab == 'rer' else 'none' }};">
+            <h3 style="color: var(--warning); margin-top: 0;">Resting Energy Requirement (RER)</h3>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px;">
+                <em>Formula: 70 * (weight_kg)<sup>0.75</sup></em>
+            </p>
+            
+            <form method="POST">
+                <input type="hidden" name="calc_type" value="rer">
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: bold;">Patient Weight (lb):</label><br>
+                    <input type="number" step="0.1" min="0.1" max="400" name="weight" required style="max-width: 300px; margin-top: 5px;">
+                </div>
+                <button type="submit" class="btn" style="background-color: var(--warning); color: white; width: 100%;">
+                    Calculate Nutritional Needs
+                </button>
+            </form>
+
+            {% if rer_result %}
+                <div style="margin-top: 25px; padding: 20px; background: var(--bg-main); border-left: 5px solid var(--warning); border-radius: 4px;">
+                    <h4 style="margin-top: 0;">Patient Assessment ({{ rer_result.weight_kg }} kg)</h4>
+                    <p style="font-size: 1.4em; color: var(--warning); margin-bottom: 10px;"><strong>Base RER: {{ rer_result.rer_kcal }} kcal/day</strong></p>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color);">
+                    <p><strong>Illness Factor (1.25x):</strong> {{ rer_result.illness_factor_1_25 }} kcal/day <br>
+                       <small style="color: var(--text-muted);">(Mild trauma, elective surgery recovery)</small></p>
+                    <p><strong>Illness Factor (1.5x):</strong> {{ rer_result.illness_factor_1_5 }} kcal/day <br>
+                       <small style="color: var(--text-muted);">(Severe trauma, sepsis, burn recovery)</small></p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="drugs-calc" style="display: {{ 'block' if active_tab == 'drugs' else 'none' }};">
+            <h3 style="color: var(--danger); margin-top: 0;">🚨 Emergency Drug Doser</h3>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px;">
+                <em>Formula: (Weight kg * Dose mg/kg) / Concentration mg/mL</em>
+            </p>
+            
+            <form method="POST">
+                <input type="hidden" name="calc_type" value="drugs">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                    <div>
+                        <label style="font-weight: bold;">Patient Weight (lb):</label><br>
+                        <input type="number" step="0.1" min="0.1" max="400" name="weight" required style="margin-top: 5px;">
+                    </div>
+                    <div>
+                        <label style="font-weight: bold;">Select Drug:</label><br>
+                        <select name="drug_name" required style="margin-top: 5px;">
+                            <option value="" disabled selected>-- Select a drug --</option>
+                            {% for name in formulary %}
+                                <option value="{{ name }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="background-color: var(--danger); color: white; width: 100%;">
+                    Calculate Emergency Dose
+                </button>
+            </form>
+
+            {% if drug_result %}
+                <div style="margin-top: 25px; padding: 20px; background: var(--bg-main); border-left: 5px solid var(--danger); border-radius: 4px;">
+                    <h4 style="margin-top: 0; color: var(--danger);">{{ drug_result.name }} Draw-up Guide</h4>
+                    <p style="font-size: 1.6em; color: var(--danger); margin: 10px 0;">
+                        <strong>Volume to Administer: {{ drug_result.total_ml }} mL</strong>
+                    </p>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color);">
+                    <p style="margin-bottom: 5px;">Patient Weight: <strong>{{ drug_result.weight_kg }} kg</strong></p>
+                    <p style="margin-bottom: 5px;">Total Dosage: <strong>{{ drug_result.total_mg }} mg</strong></p>
+                    <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 10px;">
+                        <em>Reference: Dose {{ drug_result.dose_rate }} mg/kg | Conc {{ drug_result.conc }} mg/mL</em>
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="margin-top: 25px;">
+        <a href="/" style="text-decoration: none; color: var(--text-muted); font-weight: bold;">← Back to Study Modules</a>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        document.getElementById('fluids-calc').style.display = 'none';
+        document.getElementById('rer-calc').style.display = 'none';
+        document.getElementById('drugs-calc').style.display = 'none';
+        
+        const tabs = ['fluids', 'rer', 'drugs'];
+        tabs.forEach(t => {
+            const btn = document.getElementById('btn-' + t);
+            btn.style.background = 'var(--bg-main)';
+            btn.style.color = 'var(--text-muted)';
+        });
+
+        document.getElementById(tabName + '-calc').style.display = 'block';
+        
+        const activeBtn = document.getElementById('btn-' + tabName);
+        activeBtn.style.color = 'white';
+        if (tabName === 'fluids') activeBtn.style.background = 'var(--primary)';
+        else if (tabName === 'rer') activeBtn.style.background = 'var(--warning)';
+        else if (tabName === 'drugs') activeBtn.style.background = 'var(--danger)';
+    }
+</script>
+{% endblock %}

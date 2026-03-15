@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARRE | AI Risk Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { background: #0b0e11; color: #eaecef; font-family: 'Inter', -apple-system, sans-serif; margin: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .card { background: #1e2329; border-radius: 8px; padding: 25px; border: 1px solid #333; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        
+        /* Decision Colors */
+        .status-halt { color: #f6465d; font-weight: bold; font-size: 1.2em; }
+        .status-execute { color: #0ecb81; font-weight: bold; font-size: 1.2em; }
+        .status-reduce_size { color: #f0b90b; font-weight: bold; font-size: 1.2em; }
+        
+        .log-entry { border-bottom: 1px solid #333; padding: 12px 0; font-size: 0.9em; line-height: 1.4; }
+        .log-entry strong { color: #848e9c; margin-right: 8px; }
+        
+        h1 { color: #f0b90b; margin-bottom: 30px; }
+        h2 { margin-top: 0; color: #848e9c; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        
+        button { 
+            background: #f0b90b; 
+            color: #000;
+            border: none; 
+            padding: 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 20px; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #d9a508; }
+        button:active { transform: scale(0.98); }
+        
+        #status-display p { margin: 10px 0; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <h1>AI-Driven Risk & Regime Engine (ARRE)</h1>
+    
+    <div class="grid">
+        <div class="card">
+            <h2>Current Risk Status</h2>
+            <div id="status-display">
+                <p style="color: #848e9c;">Waiting for market data...</p>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+            
+            <h2>Controls</h2>
+            <button onclick="runSimulation()">
+                RUN MARKET SIMULATION
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>D.A.V.E. Logic Reasoning Logs</h2>
+            <div id="logs">
+                <p style="color: #848e9c;">Logs will appear here when a risk check is triggered.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Listen for updates from the Flask server
+        socket.on('risk_update', function(data) {
+            const analysis = JSON.parse(data.analysis);
+            
+            // Clear the "Waiting" text on first update
+            if (document.getElementById('logs').innerText.includes('Logs will appear')) {
+                document.getElementById('logs').innerHTML = '';
+            }
+
+            // Update Status Card
+            const statusDiv = document.getElementById('status-display');
+            const decisionClass = `status-${analysis.decision.toLowerCase()}`;
+            
+            statusDiv.innerHTML = `
+                <p>Decision: <span class="${decisionClass}">${analysis.decision}</span></p>
+                <p>Regime: <strong>${analysis.regime}</strong></p>
+                <p>Risk Multiplier: <strong>${analysis.risk_multiplier}x</strong></p>
+            `;
+
+            // Append to Logs
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            // Formatting the timestamp and AI reasoning
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `
+                <strong>[${time}]</strong> 
+                <span style="color: #eaecef">${analysis.dave_summary}</span>
+            `;
+            logsDiv.prepend(entry);
+        });
+
+        // Trigger the simulation route on the backend
+        async function runSimulation() {
+            try {
+                const response = await fetch('/simulate', { method: 'POST' });
+                const data = await response.json();
+                console.log("Simulation triggered:", data.scenario_used);
+            } catch (err) {
+                console.error("Simulation failed:", err);
+            }
+        }
+    </script>
+</body>
+</html>

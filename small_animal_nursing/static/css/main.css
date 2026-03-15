@@ -1,0 +1,121 @@
+/* --- CSS VARIABLES (The Magic Behind Dark Mode) --- */
+:root {
+    /* Light Mode Colors */
+    --bg-main: #f4f7f6;
+    --bg-card: #ffffff;
+    --text-main: #2c3e50;
+    --text-muted: #7f8c8d;
+    --primary: #3498db;
+    --primary-hover: #2980b9;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #e67e22;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Colors */
+    --bg-main: #1a202c;
+    --bg-card: #2d3748;
+    --text-main: #f7fafc;
+    --text-muted: #a0aec0;
+    --primary: #4299e1;
+    --primary-hover: #3182ce;
+    --success: #48bb78;
+    --danger: #f56565;
+    --warning: #ed8936;
+    --border-color: #4a5568;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* --- BASE STYLES --- */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4 {
+    color: var(--text-main);
+}
+
+/* --- CARDS & CONTAINERS --- */
+.card, .quiz-section, .calculator-box {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* --- FORMS & INPUTS --- */
+input[type="text"], input[type="number"], select {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* --- BUTTONS --- */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+.btn-primary { background-color: var(--primary); color: white; }
+.btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+    background-color: var(--bg-card);
+}
+
+/* --- TABLES --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+}
+th {
+    background-color: var(--bg-main);
+    font-weight: bold;
+}

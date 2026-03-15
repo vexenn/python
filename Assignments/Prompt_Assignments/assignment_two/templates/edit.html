@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | {{ user.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="edit-container">
+        <div class="edit-card">
+            <header class="edit-header">
+                <h2>Update Your Profile</h2>
+                <p>Modify your portfolio details and save to update live.</p>
+            </header>
+
+            <form method="POST" class="profile-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" placeholder="Your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <input type="text" id="role" name="role" value="{{ user.role }}" placeholder="e.g. Software Engineer">
+                </div>
+
+                <div class="form-group">
+                    <label for="about">About Me</label>
+                    <textarea id="about" name="about" rows="4" placeholder="Briefly describe your background...">{{ user.about }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile_img">Profile Image URL</label>
+                    <input type="text" id="profile_img" name="profile_img" value="{{ user.profile_img }}" placeholder="Link to your headshot or 3D avatar">
+                    <small class="helper-text">Enter a URL for your profile picture.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">Skills (comma separated)</label>
+                    <input type="text" id="skills" name="skills" value="{{ user.skills|join(', ') }}" placeholder="Python, JavaScript, AI...">
+                    <small class="helper-text">Add your technical stack, separated by commas.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Projects</label>
+                    <div id="project-list">
+                        {% for project in user.projects %}
+                        <div class="project-entry" style="margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                            <label style="font-size: 0.8rem;">Project Title</label>
+                            <input type="text" name="project_title[]" value="{{ project.title }}" placeholder="Project Title" style="margin-bottom: 10px;">
+                            
+                            <label style="font-size: 0.8rem;">Project Description</label>
+                            <textarea name="project_desc[]" placeholder="Project Description" rows="2">{{ project.description }}</textarea>
+                            
+                            <button type="button" class="btn-remove" onclick="this.parentElement.remove()" style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.85rem; padding: 5px 0; font-weight: 600;">× Remove Project</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="add-project-btn" class="btn-secondary" style="margin-top: 10px; width: 100%;">+ Add New Project</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <a href="{{ url_for('home') }}" class="btn-secondary">Back to Portfolio</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
