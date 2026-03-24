@@ -1,0 +1,40 @@
+body {
+    font-family: Arial;
+    background: #eef2f3;
+    text-align: center;
+}
+
+.container {
+    margin-top: 100px;
+    background: white;
+    padding: 30px;
+    width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px gray;
+}
+
+input {
+    padding: 10px;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    background: purple;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: darkviolet;
+}
+
+#output {
+    margin-top: 20px;
+    font-weight: bold;
+}

@@ -1,0 +1,14 @@
+/* STEP 1: DEFINE VARIABLES */
+:root {
+  --main-color: blue;
+  --text-color: white;
+  --padding-size: 20px;
+}
+
+/* STEP 2: USE VARIABLES */
+.box {
+  background: var(--main-color);
+  color: var(--text-color);
+  padding: var(--padding-size);
+  margin: 10px;
+}

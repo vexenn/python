@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS Variable Scope Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>Variable Scope Demo</h1>
+
+<p>This is outside the card</p>
+
+<div class="card">
+    <p>This is inside the card</p>
+</div>
+
+<div id="test">
+    <p><strong>This is a list</strong></p>
+    <ul>
+        <li>Test 1</li>
+        <li>Test 2</li>
+        <li>Test 3</li>
+        <li>Test 4</li>
+    </ul>
+</div>
+
+<h2>Theme Switch Demo</h2>
+
+<p>This is a sample text to show theme change</p>
+
+<button onclick="toggleTheme()">Toggle Dark Mode</button>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle("dark");
+}
+</script>
+
+</body>
+</html>

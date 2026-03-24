@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Boolean & String Conversion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Boolean & String Conversion</h1>
+
+        <input type="text" id="inputValue" placeholder="Enter any value">
+
+        <div class="buttons">
+            <button onclick="convertBoolean()">Convert to Boolean</button>
+            <button onclick="convertString()">Convert to String</button>
+        </div>
+
+        <h3>Output:</h3>
+        <p id="output"></p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JS Data Structures Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>JavaScript Data Structures</h1>
+
+        <div class="buttons">
+            <button onclick="showPrimitive()">Primitive Types</button>
+            <button onclick="showNonPrimitive()">Non-Primitive Types</button>
+        </div>
+
+        <h3>Output:</h3>
+        <pre id="output"></pre>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

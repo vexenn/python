@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Alt Text Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main>
+        <h1>Generate Accessibility Tags</h1>
+        
+        <form id="altTextForm">
+            <label for="imageUpload">Upload Image:</label>
+            <input type="file" id="imageUpload" name="image" accept="image/*" required>
+            <br><br>
+            
+            <label for="contextInput">Image Context (Where will this be used?):</label><br>
+            <textarea id="contextInput" name="context" rows="3" cols="40" placeholder="e.g., A header image for a software engineering study guide..."></textarea>
+            <br><br>
+
+            <button type="submit">Generate Alt Text</button>
+        </form>
+
+        <div id="resultContainer" style="display: none; margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+            
+            <div style="margin-bottom: 20px;">
+                <img id="imagePreview" src="" alt="Preview of uploaded image" style="max-width: 300px; max-height: 300px; border-radius: 8px; display: none;">
+            </div>
+
+            <h2>Generated Alt Text:</h2>
+            <p id="altTextOutput"></p>
+            
+            <h3>Ready-to-Use HTML:</h3>
+
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+                <code id="htmlCodeOutput" style="background: #eee; padding: 10px; display: block; flex-grow: 1; border-radius: 4px;"></code>
+                <button id="copyButton" type="button" style="padding: 10px; cursor: pointer;">Copy HTML</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

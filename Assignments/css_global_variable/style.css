@@ -1,0 +1,57 @@
+/* 1. THEME TOKENS - Define EVERYTHING here */
+:root {
+  /* Core Colors */
+  --bg-main: #ffffff;
+  --text-main: blue;
+
+  /* Component Colors (Semantic Naming) */
+  --card-text: red;
+  --card-border: black;
+  
+  --test-text: black;
+  --test-border: #dddddd;
+  --test-shadow: rgba(0, 0, 0, 0.05);
+}
+
+/* 2. DARK MODE OVERRIDES - Only change values, keep names identical */
+.dark {
+  --bg-main: #1a1a1a;
+  --text-main: #f0f0f0;
+
+  --card-text: orange;
+  --card-border: #444;
+  --card-shadow: rgba(255, 255, 255, 0.1);
+
+  --test-text: #00ffcc;
+  --test-border: #555;
+  --test-shadow: rgba(255, 255, 255, 0.1);
+}
+
+/* 3. BASE STYLES - Set it and forget it */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: sans-serif; /* Standard web-safe font */
+  padding: 20px;
+  line-height: 1.6;
+  /* transition: background-color 0.3s, color 0.3s, border-color 0.3s; */
+}
+
+/* 4. COMPONENT STYLES - Use the variables */
+.card {
+  color: var(--card-text);
+  border: 2px solid var(--card-border);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+#test {
+  color: var(--test-text);
+  border: 2px solid var(--test-border);
+  box-shadow: 0 4px 10px var(--test-shadow);
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
