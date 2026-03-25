@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Display Result
-        resultDiv.style.color = "blue";
+        resultDiv.style.color = "red";
         resultDiv.innerHTML = `<h3>Your BMI is: ${bmi}</h3><p>Category: <strong>${category}</strong></p>`;
     });
 });
