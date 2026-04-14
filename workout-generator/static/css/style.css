@@ -1,0 +1,297 @@
+/* --- CSS Variables (Theming) --- */
+:root {
+    --primary-color: #0ea5e9; /* A clean, trustworthy medical blue */
+    --primary-hover: #0284c7;
+    --bg-color: #f8fafc; /* Very light cool gray for the page background */
+    --card-bg: #ffffff;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --warning-bg: #fef3c7;
+    --warning-text: #92400e;
+    --success-color: #10b981;
+    --success-hover: #059669;
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- Base Layout --- */
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+h1, h2, h3 {
+    color: #0f172a;
+    margin-top: 0;
+}
+
+/* --- Forms & Inputs (index.html) --- */
+form {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* --- Buttons --- */
+button {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.print-btn {
+    background-color: var(--success-color);
+    width: auto;
+    margin-bottom: 24px;
+}
+
+.print-btn:hover {
+    background-color: var(--success-hover);
+}
+
+/* --- Routine Cards (routine.html) --- */
+.disclaimer {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    border-left: 4px solid #f59e0b;
+}
+
+.day-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.day-card h2 {
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.exercise {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.exercise:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.details {
+    flex: 1;
+}
+
+.details h3 {
+    margin-bottom: 4px;
+}
+
+.details p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+iframe {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Responsive Design (Mobile Support) --- */
+@media (max-width: 600px) {
+    .exercise {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    iframe {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+}
+
+/* --- PDF Mode Rules (CRITICAL) --- */
+.video-link {
+    display: none;
+    color: #dc2626; /* YouTube Red */
+    text-decoration: underline;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding-top: 12px;
+}
+
+.pdf-mode .video-player {
+    display: none !important; 
+}
+
+.pdf-mode .video-link {
+    display: block !important; 
+}
+
+.pdf-mode .exercise {
+    display: block; 
+    page-break-inside: avoid; 
+    break-inside: avoid;
+}
+
+.pdf-mode .day-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* --- Loading Spinner --- */
+.loading-container {
+    display: none; /* Hidden by default */
+    text-align: center;
+    margin-top: 20px;
+}
+
+.loader {
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* --- Top Action Buttons --- */
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* Secondary Button Style */
+.back-btn {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 14px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.back-btn:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+/* Update print-btn to fit next to the back button */
+.print-btn {
+    background-color: var(--success-color);
+    width: auto;
+    margin-bottom: 0; /* Remove the old bottom margin */
+}
+
+/* --- UPDATE YOUR PDF MODE --- */
+/* Make sure the PDF generator hides BOTH buttons */
+.pdf-mode .action-buttons {
+    display: none !important;
+}
+
+/* --- Fallback Search Button --- */
+.video-link-fallback {
+    display: inline-block;
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+}
+
+.video-link-fallback:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+/* --- PDF Mode Fallback Override --- */
+/* This ensures the fallback link looks good on the PDF */
+.pdf-mode .video-link-fallback {
+    display: block !important;
+    border: 1px solid #cccccc;
+    margin-top: 10px;
+}

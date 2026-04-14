@@ -8,3 +8,9 @@ Lessons/Lessons/yolo26n.pt
 Lessons/yolo26n.pt
 polybot/.env
 a11y-alt-generator/.env
+.env
+workout-generator/build
+workout-generator/dist
+.venv
+.vscode
+capy_pet/assets

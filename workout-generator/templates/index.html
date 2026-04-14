@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health & Rehab Routine Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+<body>
+    <h1>Create a Custom Routine</h1>
+    <p>Generate a targeted workout and rehabilitation schedule.</p>
+    
+    <form action="/generate" method="POST" id="routine-form">
+        <label for="condition">Medical Condition or Focus Goal (e.g., Plantar Fasciitis):</label>
+        <input type="text" id="condition" name="condition" required placeholder="Enter condition...">
+        
+        <label for="days">Days per week:</label>
+        <select id="days" name="days">
+            <option value="3">3 Days</option>
+            <option value="4">4 Days</option>
+            <option value="5">5 Days</option>
+        </select>
+        
+        <button type="submit" id="submit-btn">Generate Routine</button>
+
+        <div id="loading-ui" class="loading-container">
+            <div class="loader"></div>
+            <div class="loading-text">Consulting AI and fetching videos... please wait!</div>
+        </div>
+    </form>
+
+    <script>
+        document.getElementById('routine-form').addEventListener('submit', function() {
+            // Hide the submit button
+            document.getElementById('submit-btn').style.display = 'none';
+            // Show the loading animation
+            document.getElementById('loading-ui').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
