@@ -1,16 +1,66 @@
+# --- Environment & Secrets (Vexenn Projects) ---
+.env
+*.env
+polybot/.env
+a11y-alt-generator/.env
+firebase-app/android/app/google-services.json
+
+# --- System & Cache stragglers ---
+video_cache.json
+remaining_files.txt
+package.json
+package-lock.json
+
+# --- Python & Virtual Environments ---
+.venv/
 aienv/
+**/__pycache__/
+*.pyc
+
+# --- Build Artifacts (General & Workout Generator) ---
+**/build/
+**/dist/
+**/_internal/
+**/tzdata/
+**/runs/
+*.spec
+workout-generator/build/
+workout-generator/dist/
+
+# --- Project Specific Data & Assignments ---
 dataset/
-runs/
 src/
 temp-project/
 javascript/
+capy_pet/assets/
 Lessons/Lessons/yolo26n.pt
 Lessons/yolo26n.pt
-polybot/.env
-a11y-alt-generator/.env
-.env
-workout-generator/build
-workout-generator/dist
-.venv
-.vscode
-capy_pet/assets
+
+# --- Node / Javascript Dependencies ---
+node_modules/
+**/node_modules/
+package-lock.json
+
+# --- Flutter & Dart (Global) ---
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/generated_plugin_registrant.dart
+
+# --- OS Specific Ephemeral Files ---
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/ios/Flutter/.last_build_id
+
+# --- System & IDE Config ---
+.vscode/
+.DS_Store
+*.log
+*.swp
+
+# --- SDK Ignores ---
+/flutter/
+python/flutter/

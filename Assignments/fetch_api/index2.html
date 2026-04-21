@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Fetch Demo</title>
+</head>
+<body>
+
+<h2>Post Titles</h2>
+
+<button onclick="loadPosts()">Load Posts</button>
+<button onclick="nextPosts()">Next 5 Posts</button>
+
+<ul id="posts"></ul>
+
+<script>
+    // These must be inside the script tag and use "=" for assignment
+    let allPosts = []; 
+    let start = 0; 
+    const limit = 5;
+
+    function renderPosts(postArray) {
+        let output = "";
+        postArray.forEach(post => {
+            output += `<li>${post.title}</li>`;
+        });
+        document.getElementById("posts").innerHTML = output;
+    }
+
+    function loadPosts() {
+        fetch('https://jsonplaceholder.typicode.com/posts')
+        .then(response => response.json())
+        .then(data => {
+            allPosts = data; // Save all 100 posts here
+            start = 0;       // Reset to the beginning
+            
+            // Get just the first 5: slice(0, 5)
+            const firstFive = allPosts.slice(start, start + limit);
+            renderPosts(firstFive);
+        })
+        .catch(error => console.log("Error:", error));
+    }
+
+    function nextPosts() {
+        // 1. Move the starting point forward by 5
+        start += limit;
+
+        // 2. Check if we've run out of posts
+        if (start >= allPosts.length) {
+            alert("No more posts to show!");
+            return;
+        }
+
+        // 3. Slice the next chunk (e.g., 5 to 10)
+        const nextChunk = allPosts.slice(start, start + limit);
+        
+        // 4. Update the screen
+        renderPosts(nextChunk);
+    }
+</script>
+
+</body>
+</html>
