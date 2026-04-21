@@ -1,6 +1,7 @@
 # --- Environment & Secrets (Vexenn Projects) ---
 .env
 *.env
+**/.env
 polybot/.env
 a11y-alt-generator/.env
 firebase-app/android/app/google-services.json
