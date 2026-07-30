@@ -1,26 +1,36 @@
-export default async function handler(req, res) {
-    // Only allow POST requests
+module.exports = async function handler(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method Not Allowed' });
-    }
-
-    const { name, email, message } = req.body;
-    const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-
-    // 1. Failsafe: Check if the Vercel Environment Variable is actually loaded
-    if (!accessKey) {
-        console.error('CRITICAL ERROR: WEB3FORMS_ACCESS_KEY is missing from Vercel Environment Variables.');
-        return res.status(500).json({ success: false, message: 'Server configuration error.' });
-    }
-
-    // Basic backend validation
-    if (!name || !email || !message) {
-        return res.status(400).json({ message: 'Missing required fields' });
+        return res.status(405).json({ success: false, message: 'Method Not Allowed' });
     }
 
     try {
-        // Forward the request to Web3Forms, injecting the secret key
-        const response = await fetch('https://api.web3forms.com/submit', {
+        let body = req.body;
+        if (!body) {
+            return res.status(400).json({ success: false, message: 'Request body is empty.' });
+        }
+
+        if (typeof body === 'string') {
+            try {
+                body = JSON.parse(body);
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid JSON format in body.' });
+            }
+        }
+
+        const { name, email, message } = body;
+        const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+
+        if (!accessKey) {
+            return res.status(500).json({ success: false, message: 'Configuration error: WEB3FORMS_ACCESS_KEY is missing.' });
+        }
+
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: 'Please fill out all required fields.' });
+        }
+
+        const web3Response = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,24 +44,23 @@ export default async function handler(req, res) {
             })
         });
 
-        // 2. Failsafe: Read the raw response as text FIRST to prevent the JSON.parse crash
-        const rawText = await response.text();
-
-        let data;
+        const responseText = await web3Response.text();
+        let resultData;
+        
         try {
-            data = JSON.parse(rawText);
-        } catch (parseError) {
-            console.error('Web3Forms returned an unexpected non-JSON response:', rawText);
-            return res.status(502).json({ success: false, message: 'Invalid response from email provider.' });
+            resultData = JSON.parse(responseText);
+        } catch (err) {
+            return res.status(502).json({ success: false, message: 'Invalid response received from email service.' });
         }
 
-        if (response.ok) {
-            return res.status(200).json({ success: true, message: 'Message sent successfully' });
+        if (web3Response.ok) {
+            return res.status(200).json({ success: true, message: 'Message sent successfully!' });
         } else {
-            return res.status(response.status).json({ success: false, message: data.message });
+            return res.status(web3Response.status).json({ success: false, message: resultData.message || 'Submission failed.' });
         }
-    } catch (error) {
-        console.error('Submission error:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+
+    } catch (err) {
+        console.error('Fatal API route error:', err);
+        return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
     }
-}
+};
