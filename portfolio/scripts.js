@@ -104,7 +104,7 @@ document.querySelectorAll('.btn, .theme-toggle').forEach(element => {
 // ==================== Contact Form Handling ==================== 
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     // Get form values
@@ -125,18 +125,40 @@ contactForm.addEventListener('submit', (e) => {
         return;
     }
     
-    // Simulate form submission
+    // UI Loading State
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
     submitButton.textContent = 'Sending...';
     submitButton.disabled = true;
     
-    setTimeout(() => {
-        showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-        contactForm.reset();
+    // Send data to our secure Vercel Serverless Function
+    try {
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message
+            })
+        });
+
+        if (response.ok) {
+            showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
+            contactForm.reset();
+        } else {
+            showNotification('Something went wrong. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        showNotification('Network error. Please check your connection.', 'error');
+    } finally {
+        // Reset button state
         submitButton.textContent = originalText;
         submitButton.disabled = false;
-    }, 1500);
+    }
 });
 
 // ==================== Notification System ==================== 
@@ -255,8 +277,15 @@ const projectLinks = document.querySelectorAll('.project-link');
 
 projectLinks.forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault();
-        showNotification('Project details coming soon!', 'info');
+        // Get the exact href attribute from the clicked link
+        const href = link.getAttribute('href');
+
+        // Check if the link is just a placeholder
+        if (href === '#') {
+            e.preventDefault();
+            showNotification('Project details coming soon!', 'info');
+        }
+        // If the href is a real URL, the browser will ignore this block and open the link
     });
 });
 
